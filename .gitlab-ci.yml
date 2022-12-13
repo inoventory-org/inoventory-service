@@ -1,0 +1,30 @@
+stages:
+  - build
+  - test
+  - docker
+  - deploy
+
+build-job:    
+  image: gradle:7.5.1
+  stage: build
+  script:
+    - gradle assemble
+
+unit-test-job:
+  image: gradle:7.5.1
+  stage: test
+  script:
+    - gradle check
+
+docker-job:
+  image: docker:20.10.21
+  stage: docker
+  script:
+    - docker build .
+
+deploy-job:
+  stage: deploy
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."
