@@ -9,18 +9,25 @@ build-job:
   stage: build
   script:
     - gradle assemble
+  tags:
+    - shared
 
 unit-test-job:
   image: gradle:7.5.1
   stage: test
   script:
     - gradle check
+  tags:
+    - shared
 
 docker-job:
   image: docker:20.10.21
   stage: docker
   script:
+    - docker info
     - docker build .
+  tags:
+    - shared
 
 deploy-job:
   stage: deploy
@@ -28,3 +35,5 @@ deploy-job:
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
+  tags:
+    - shared
