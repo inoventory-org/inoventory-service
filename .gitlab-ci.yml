@@ -24,6 +24,7 @@ docker-job:
   image: docker:20.10.21
   stage: docker
   script:
+    - docker info
     - docker build .
   tags:
     - shared
