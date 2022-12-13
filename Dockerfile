@@ -1,6 +1,4 @@
-ARG jar_name=inoventory-0.0.1-SNAPSHOT.jar
-
-FROM openjdk:17 AS build
+FROM gradle:7.5.1 AS build
 COPY . /src
 WORKDIR /src
 RUN ./gradlew build
