@@ -1,4 +1,7 @@
-image: gradle:7.5.1
+default:
+  image: gradle:7.5.1
+  tags:
+    - shared
 
 services:
     - name: docker:dind
@@ -21,8 +24,6 @@ build-job:
   stage: build
   script:
     - gradle assemble
-  tags:
-    - shared
   artifacts:
     paths:
       - build/libs/*.jar
@@ -31,13 +32,9 @@ unit-test-job:
   stage: test
   script:
     - gradle check
-  tags:
-    - shared
 
 docker-job:
   stage: docker
-  tags:
-    - shared
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
@@ -53,5 +50,3 @@ deploy-job:
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
-  tags:
-    - shared
