@@ -21,9 +21,9 @@ unit-test-job:
     - shared
 
 docker-job:
+  image: tiangolo/docker-with-compose
   stage: docker
   script:
-    - docker info
     - docker build .
   tags:
     - shared
