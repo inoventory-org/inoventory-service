@@ -39,11 +39,9 @@ docker-job:
   stage: docker
   script:
     - ls /build/libs/
-    - docker build .
+    - docker build -t com.inovex.inoventory:latest .
   tags:
-    - shared
-
-    
+    - shared    
 
 deploy-job:
   stage: deploy
