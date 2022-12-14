@@ -23,6 +23,9 @@ build-job:
     - gradle assemble
   tags:
     - shared
+  artifacts:
+    paths:
+      - /build/libs/*.jar
 
 unit-test-job:
   stage: test
@@ -35,6 +38,7 @@ docker-job:
   image: tiangolo/docker-with-compose
   stage: docker
   script:
+    - ls /build/libs/
     - docker build .
   tags:
     - shared
