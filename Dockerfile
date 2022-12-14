@@ -1,7 +1,7 @@
 FROM gradle:7.5.1 AS build
 COPY . /src
 WORKDIR /src
-RUN ./gradlew build
+RUN ./gradlew build -x test
 
 FROM openjdk:17
 RUN mkdir /app

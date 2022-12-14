@@ -17,6 +17,6 @@ data class Product(
         val source: Source = Source.API,
 
         @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
-        val tags: Set<Tag>
+        val tags: Set<Tag> = setOf()
         // tagId, Image
 )
