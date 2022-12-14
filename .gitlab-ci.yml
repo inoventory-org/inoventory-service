@@ -35,13 +35,15 @@ unit-test-job:
     - shared
 
 docker-job:
-  image: docker:latest
   stage: docker
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
   script:
-    - ls build/libs/
-    - docker build -t com.inovex.inoventory:latest .
-  tags:
-    - shared    
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}" 
 
 deploy-job:
   stage: deploy
