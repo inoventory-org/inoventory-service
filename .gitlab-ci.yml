@@ -35,6 +35,7 @@ unit-test-job:
     - shared
 
 docker-job:
+  image: docker:latest
   stage: docker
   script:
     - ls /build/libs/
