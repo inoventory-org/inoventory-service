@@ -5,7 +5,6 @@ stages:
   - deploy
 
 build-job:    
-  image: gradle:7.5.1
   stage: build
   script:
     - gradle assemble
@@ -13,7 +12,6 @@ build-job:
     - shared
 
 unit-test-job:
-  image: gradle:7.5.1
   stage: test
   script:
     - gradle check
@@ -21,7 +19,6 @@ unit-test-job:
     - shared
 
 docker-job:
-  image: docker:20.10.21
   stage: docker
   script:
     - docker info
