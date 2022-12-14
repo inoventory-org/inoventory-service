@@ -35,7 +35,6 @@ unit-test-job:
     - shared
 
 docker-job:
-  image: tiangolo/docker-with-compose
   stage: docker
   script:
     - ls /build/libs/
