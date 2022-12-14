@@ -5,6 +5,7 @@
 
 FROM openjdk:17
 RUN mkdir /app
-COPY /build/libs/*.jar /app/
+COPY ./build/libs/*.jar /app/
 WORKDIR /app
+CMD ["ls", "."]
 ENTRYPOINT ["java", "-jar", "inoventory-0.0.1-SNAPSHOT.jar"]
