@@ -1,5 +1,16 @@
 image: gradle:7.5.1
 
+services:
+    - name: docker:dind
+      entrypoint: ["env", "-u", "DOCKER_HOST"]
+      command: ["dockerd-entrypoint.sh"]
+      
+variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    # See https://github.com/docker-library/docker/pull/166
+    DOCKER_TLS_CERTDIR: ""
+
 stages:
   - build
   - test
@@ -27,6 +38,8 @@ docker-job:
     - docker build .
   tags:
     - shared
+
+    
 
 deploy-job:
   stage: deploy
