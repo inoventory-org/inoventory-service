@@ -1,3 +1,16 @@
+image: gradle:7.5.1
+
+services:
+    - name: docker:dind
+      entrypoint: ["env", "-u", "DOCKER_HOST"]
+      command: ["dockerd-entrypoint.sh"]
+      
+variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    # See https://github.com/docker-library/docker/pull/166
+    DOCKER_TLS_CERTDIR: ""
+
 stages:
   - build
   - test
@@ -5,7 +18,6 @@ stages:
   - deploy
 
 build-job:    
-  image: gradle:7.5.1
   stage: build
   script:
     - gradle assemble
@@ -13,7 +25,6 @@ build-job:
     - shared
 
 unit-test-job:
-  image: gradle:7.5.1
   stage: test
   script:
     - gradle check
@@ -21,13 +32,14 @@ unit-test-job:
     - shared
 
 docker-job:
-  image: docker:20.10.21
+  image: tiangolo/docker-with-compose
   stage: docker
   script:
-    - docker info
     - docker build .
   tags:
     - shared
+
+    
 
 deploy-job:
   stage: deploy
