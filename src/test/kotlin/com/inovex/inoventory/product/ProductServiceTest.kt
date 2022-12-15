@@ -16,6 +16,7 @@ class ProductServiceTest {
     @Test
     fun testGetAllEmpty() {
         // no products were added
+        every { productRepository.findAll() } returns emptyList()
 
         // when
         val products = productService.getAll()
