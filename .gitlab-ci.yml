@@ -3,6 +3,11 @@ default:
   tags:
     - shared
 
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
 services:
     - name: docker:dind
       entrypoint: ["env", "-u", "DOCKER_HOST"]
@@ -20,6 +25,8 @@ stages:
   - docker
   - deploy
 
+
+
 build-job:    
   stage: build
   script:
@@ -32,6 +39,10 @@ unit-test-job:
   stage: test
   script:
     - gradle check
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml
 
 docker-job:
   stage: docker
