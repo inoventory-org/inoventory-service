@@ -5,16 +5,14 @@ import com.inovex.inoventory.product.domain.Source
 import io.mockk.every
 import io.mockk.mockk
 
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ActiveProfiles
 
+@ActiveProfiles("test")
 class ProductServiceTest {
 
-    private val productRepository: ProductRepository = mockk();
+    private val productRepository: ProductRepository = mockk()
     private val productService = ProductService(productRepository)
 //    @BeforeEach
 //    fun setUp() {

@@ -13,7 +13,7 @@ data class Product(
         @GeneratedValue
         val id: Long,
         val name: String,
-        val EAN: String? = "0000",
+        val EAN: String = "0000",
         val source: Source = Source.API,
 
         @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
