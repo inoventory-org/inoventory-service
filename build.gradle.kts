@@ -27,6 +27,7 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.mockk:mockk:1.13.3")
+	testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
 }
 
 tasks.withType<KotlinCompile> {
@@ -40,9 +41,3 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
-
-//tasks.withType<Jar> {
-//	manifest {
-//		attributes["Main-Class"] = "com.inovex.inoventory.InoventoryApplication"
-//	}
-//}
