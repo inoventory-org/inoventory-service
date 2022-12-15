@@ -39,7 +39,7 @@ class ProductServiceTest {
 
         // then
         assertEquals(newProduct.id, product.id)
-        assertEquals(newProduct.name, product.name)
+        assertEquals(newProduct.name,"wrong Name")
         assertEquals(newProduct.EAN, product.EAN)
         assertEquals(newProduct.source, product.source)
         assertEquals(newProduct.tags, product.tags)
