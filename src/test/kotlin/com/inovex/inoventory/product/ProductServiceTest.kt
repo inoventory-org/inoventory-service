@@ -5,31 +5,27 @@ import com.inovex.inoventory.product.domain.Source
 import io.mockk.every
 import io.mockk.mockk
 
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 
 class ProductServiceTest {
 
-    private val productRepository: ProductRepository = mockk();
+    private val productRepository: ProductRepository = mockk()
     private val productService = ProductService(productRepository)
-//    @BeforeEach
-//    fun setUp() {
-//    }
-//
-//    @AfterEach
-//    fun tearDown() {
-//    }
-//
-//    @Test
-//    fun getAll() {
-//    }
 
     @Test
-    fun create() {
+    fun testGetAllEmpty() {
+        // no products were added
+
+        // when
+        val products = productService.getAll()
+
+        // then
+        assertTrue(products.isEmpty())
+    }
+
+    @Test
+    fun testAddProduct() {
         // given
         val product = Product(1, "Test Product", "978–0521425575", Source.API, setOf())
         every { productRepository.save(any()) } returnsArgument 0
