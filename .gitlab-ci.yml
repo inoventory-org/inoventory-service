@@ -10,8 +10,7 @@ cache:
 
 stages:
   - build
-#  - test
-  - docker
+  - test
   - deploy
 
 build-job:    
@@ -22,17 +21,18 @@ build-job:
     paths:
       - build/libs/*.jar
 
-#unit-test-job:
-#  stage: test
-#  script:
-#    - gradle check
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: build/test-results/test/**/TEST-*.xml
+unit-test-job:
+  stage: test
+  script:
+    - gradle check
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml
 
-docker-job:
-  stage: docker
+docker-publish-and-deploy:
+  stage: deploy
+  when: manual
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
@@ -41,10 +41,3 @@ docker-job:
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
-
-deploy-job:
-  stage: deploy
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
