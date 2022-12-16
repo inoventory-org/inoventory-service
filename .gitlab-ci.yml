@@ -10,7 +10,7 @@ cache:
 
 stages:
   - build
-  - test
+#  - test
   - docker
   - deploy
 
@@ -22,14 +22,14 @@ build-job:
     paths:
       - build/libs/*.jar
 
-unit-test-job:
-  stage: test
-  script:
-    - gradle check
-  artifacts:
-    when: always
-    reports:
-      junit: build/test-results/test/**/TEST-*.xml
+#unit-test-job:
+#  stage: test
+#  script:
+#    - gradle check
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: build/test-results/test/**/TEST-*.xml
 
 docker-job:
   stage: docker

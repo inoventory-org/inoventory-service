@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class ProductService(private val repository: ProductRepository) {
-    fun getAll() = repository.findAll()
+
+    fun getAll() = listOf<Product>(Product(0,"Statically Created Product"))
+//    fun getAll() = repository.findAll()
 
     fun create(product: Product): Product {
         return repository.save(product);
