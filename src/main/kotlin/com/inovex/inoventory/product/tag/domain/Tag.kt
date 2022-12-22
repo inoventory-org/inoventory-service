@@ -11,7 +11,7 @@ import jakarta.persistence.ManyToMany
 data class Tag(
         @Id
         @GeneratedValue
-        val id: Long,
+        val id: Long? = null,
         val name: String,
 
 

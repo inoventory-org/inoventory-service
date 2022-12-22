@@ -11,12 +11,11 @@ import jakarta.persistence.ManyToMany
 data class Product(
         @Id
         @GeneratedValue
-        val id: Long,
+        val id: Long? = null,
         val name: String,
-        val EAN: String = "0000",
-        val source: Source = Source.API,
+        val ean: String? = null,
+        val source: Source,
 
         @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
         val tags: Set<Tag> = setOf()
-        // tagId, Image
 )

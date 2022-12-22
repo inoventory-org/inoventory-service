@@ -1,8 +1,8 @@
 package com.inovex.inoventory.product
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.inovex.inoventory.product.domain.Product
-import com.inovex.inoventory.product.domain.Source
+import com.inovex.inoventory.product.dto.EAN
+import com.inovex.inoventory.product.dto.ProductDto
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,8 +28,8 @@ internal class ProductControllerIntegrationTest : Specification() {
     @Test
     fun `GET product works`() {
         val expected = listOf(
-            Product(1, "MyProduct1", "01823", Source.USER, setOf()),
-            Product(2, "MyProduct2", "01823", Source.API, setOf())
+            ProductDto(1, "MyProduct1", EAN("01234567"), setOf()),
+            ProductDto(2, "MyProduct2", EAN("12345678"), setOf())
         )
         expected.forEach {
             println(objectMapper.writeValueAsString(it))
@@ -46,7 +46,7 @@ internal class ProductControllerIntegrationTest : Specification() {
         )
             .andExpect(status().isOk).andReturn()
 
-        val actual = objectMapper.readValue(result.response.contentAsString, Array<Product>::class.java).toList()
+        val actual = objectMapper.readValue(result.response.contentAsString, Array<ProductDto>::class.java).toList()
 
         assertEquals(expected, actual)
     }
