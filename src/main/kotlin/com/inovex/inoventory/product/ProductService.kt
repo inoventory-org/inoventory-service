@@ -13,11 +13,14 @@ class ProductService(private val repository: ProductRepository, private val apiC
     fun findAll(): List<ProductDto> = repository.findAll().map { ProductDto.fromDomain(it) }
 
     fun findOrNull(ean: EAN): ProductDto? {
-         val result = runBlocking { apiConnector.findByEan(ean) }
-        return result
+        return repository.findByEan(ean.value)?.let { ProductDto.fromDomain(it) } ?: findAndCacheApiProduct(ean)
     }
 
-    fun create(product: ProductDto): ProductDto {
-        return ProductDto.fromDomain(repository.save(product.toDomain(Source.USER)))
+    fun create(product: ProductDto, source: Source): ProductDto {
+        return ProductDto.fromDomain(repository.save(product.toDomain(source)))
+    }
+
+    private fun findAndCacheApiProduct(ean: EAN): ProductDto? {
+        return runBlocking { apiConnector.findByEan(ean) }?.let { create(it, Source.API) }
     }
 }

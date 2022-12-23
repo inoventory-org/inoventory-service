@@ -1,5 +1,6 @@
 package com.inovex.inoventory.product
 
+import com.inovex.inoventory.product.domain.Source
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.ProductDto
 import org.springframework.web.bind.annotation.*
@@ -14,5 +15,5 @@ class ProductController(private val service: ProductService) {
     fun get(@RequestParam ean: String) = service.findOrNull(EAN(ean))
 
     @PostMapping
-    fun post(@RequestBody product: ProductDto) = service.create(product)
+    fun post(@RequestBody product: ProductDto) = service.create(product, Source.USER)
 }
