@@ -5,17 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Product(
-//    val images: Images? = null,
-//    val ingredients: List<Ingredient> = emptyList(),
-//
-//    val languagesCodes: LanguagesCodes? = null,
-//
-//    val nutrientLevels: NutrientLevels? = null,
-//    val nutriments: Nutriments? = null,
-//
-//    val selectedImages: SelectedImages? = null,
-//    val sources: List<Source> = emptyList(),
-
     val additivesN: Int = 0,
 
     val additivesOldN: Int = 0,
@@ -150,8 +139,10 @@ data class Product(
 
     val imageSmallUrl: String? = null,
 
+    @SerialName("image_thumb_url")
     val imageThumbUrl: String? = null,
 
+    @SerialName("image_url")
     val imageUrl: String? = null,
 
     val informersTags: List<String> = emptyList(),

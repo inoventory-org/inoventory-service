@@ -1,12 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "3.0.0"
+	id("org.springframework.boot") version "3.0.1"
 	id("io.spring.dependency-management") version "1.1.0"
+	id("com.github.ben-manes.versions") version "0.44.0"
 	kotlin("jvm") version "1.7.21"
-	kotlin("plugin.spring") version "1.7.21"
-	kotlin("plugin.jpa") version "1.7.21"
-	kotlin("plugin.serialization") version "1.7.21"
+	kotlin("plugin.spring") version "1.7.22"
+	kotlin("plugin.jpa") version "1.7.22"
+	kotlin("plugin.serialization") version "1.7.22"
 }
 
 group = "com.inovex"
@@ -21,6 +22,7 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation ("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -37,6 +39,7 @@ dependencies {
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 }
 
 tasks.withType<KotlinCompile> {

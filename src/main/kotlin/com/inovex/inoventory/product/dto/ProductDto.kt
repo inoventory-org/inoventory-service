@@ -8,6 +8,8 @@ data class ProductDto(
     val id: Long? = null,
     val name: String,
     val ean: EAN? = null,
+    val imageUrl: String?,
+    val thumbUrl: String?,
     val tags: Set<TagDto> = setOf()
 ) {
     fun toDomain(source: Source) = Product(
@@ -15,6 +17,8 @@ data class ProductDto(
         name = name,
         ean = ean?.value,
         source = source,
+        imageUrl = imageUrl,
+        thumbUrl = thumbUrl,
         tags = tags.map { it.toDomain() }.toSet()
     )
 
@@ -23,6 +27,8 @@ data class ProductDto(
             id = product.id,
             name = product.name,
             ean = product.ean?.let { EAN(it) },
+            imageUrl = product.imageUrl,
+            thumbUrl = product.thumbUrl,
             tags = product.tags.map { TagDto.fromDomain(it) }.toSet()
         )
     }
