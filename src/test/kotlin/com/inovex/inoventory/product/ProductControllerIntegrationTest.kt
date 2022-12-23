@@ -28,8 +28,8 @@ internal class ProductControllerIntegrationTest : Specification() {
     @Test
     fun `GET product works`() {
         val expected = listOf(
-            ProductDto(1, "MyProduct1", EAN("01234567"), setOf()),
-            ProductDto(2, "MyProduct2", EAN("12345678"), setOf())
+            ProductDto(id = 1, name = "MyProduct1", ean = EAN("01234567")),
+            ProductDto(id = 2, name = "MyProduct2", ean = EAN("12345678"))
         )
         expected.forEach {
             println(objectMapper.writeValueAsString(it))

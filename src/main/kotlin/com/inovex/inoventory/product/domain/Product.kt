@@ -15,8 +15,8 @@ data class Product(
         val name: String,
         val ean: String? = null,
         val source: Source,
-        val imageUrl: String?,
-        val thumbUrl: String?,
+        val imageUrl: String? = null,
+        val thumbUrl: String? = null,
 
         @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
         val tags: Set<Tag> = setOf()

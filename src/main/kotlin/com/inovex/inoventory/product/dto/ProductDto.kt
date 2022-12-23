@@ -8,8 +8,8 @@ data class ProductDto(
     val id: Long? = null,
     val name: String,
     val ean: EAN? = null,
-    val imageUrl: String?,
-    val thumbUrl: String?,
+    val imageUrl: String? = null,
+    val thumbUrl: String? = null,
     val tags: Set<TagDto> = setOf()
 ) {
     fun toDomain(source: Source) = Product(
