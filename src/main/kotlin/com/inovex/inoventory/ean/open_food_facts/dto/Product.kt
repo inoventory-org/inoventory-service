@@ -60,7 +60,7 @@ data class Product(
     val brandsTags: List<String> = emptyList(),
 
     @SerialName("carbon_footprint_percent_of_known_ingredients")
-    val carbonFootprintPercentOfKnownIngredients: String? = null,
+    val carbonFootprintPercentOfKnownIngredients: Int? = null,
 
     @SerialName("carbon_footprint_from_known_ingredients_debug")
     val carbonFootprintFromKnownIngredientsDebug: String? = null,
@@ -386,7 +386,7 @@ data class Product(
     val noNutritionData: String? = null,
 
     @SerialName("nova_group")
-    val novaGroup: String? = null,
+    val novaGroup: Int? = null,
 
     @SerialName("nova_groups")
     val novaGroups: String? = null,
