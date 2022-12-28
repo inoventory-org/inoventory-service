@@ -8,8 +8,10 @@ import com.inovex.inoventory.user.service.UserService
 import org.springframework.stereotype.Service
 
 @Service
-class InventoryListServiceImpl(private val inventoryListRepository: InventoryListRepository,
-                               private val userService: UserService) : InventoryListService {
+class InventoryListServiceImpl(
+    private val inventoryListRepository: InventoryListRepository,
+    private val userService: UserService
+) : InventoryListService {
 
     override fun getAll(): List<InventoryList> {
         return inventoryListRepository.findAll()
@@ -26,7 +28,7 @@ class InventoryListServiceImpl(private val inventoryListRepository: InventoryLis
             inventoryList.user = it
             inventoryListRepository.save(inventoryList)
         } ?: throw NotAuthorizedException("You must be logged in to perform this action")
-    // TODO: decide on how to handle case where user is not logged in
+        // TODO: decide on how to handle case where user is not logged in
     }
 
     override fun update(id: Long, inventoryList: InventoryList): InventoryList {
