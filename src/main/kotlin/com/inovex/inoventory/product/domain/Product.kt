@@ -21,10 +21,13 @@ data class Product(
         val imageUrl: String? = null,
         val thumbUrl: String? = null,
 
-
         @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL])
         val listItems: List<ListItem> = listOf(),
 
         @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
         val tags: Set<Tag> = setOf(),
+
+        // TODO: add caching time
+        // When looking up the product, the service could refresh it if its older than a day for example
+
 )

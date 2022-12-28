@@ -1,4 +1,4 @@
-package com.inovex.inoventory.list
+package com.inovex.inoventory.list.service
 
 import com.inovex.inoventory.list.domain.InventoryList
 

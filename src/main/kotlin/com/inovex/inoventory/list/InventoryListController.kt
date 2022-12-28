@@ -1,6 +1,7 @@
 package com.inovex.inoventory.list
 
 import com.inovex.inoventory.list.domain.InventoryList
+import com.inovex.inoventory.list.service.InventoryListService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

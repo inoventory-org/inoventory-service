@@ -1,8 +1,10 @@
+import com.inovex.inoventory.exceptions.NotAuthorizedException
 import com.inovex.inoventory.exceptions.ResourceNotFoundException
 import com.inovex.inoventory.list.InventoryListRepository
-import com.inovex.inoventory.list.InventoryListServiceImpl
+import com.inovex.inoventory.list.service.InventoryListServiceImpl
 import com.inovex.inoventory.list.domain.InventoryList
 import com.inovex.inoventory.user.domain.User
+import com.inovex.inoventory.user.service.UserService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -14,16 +16,18 @@ import java.util.Optional
 class InventoryListServiceTests {
 
     private val inventoryListRepository = mockk<InventoryListRepository>()
-    private val inventoryListService = InventoryListServiceImpl(inventoryListRepository)
+    private val userService = mockk<UserService>()
+    private val inventoryListService = InventoryListServiceImpl(inventoryListRepository, userService )
 
     @Test
     fun `getAll should return all lists from the repository`() {
         // Given
-        val user = User(userName = "luke.skywalker")
+        val user = User(0, userName = "luke.skywalker")
         val list1 = InventoryList(name = "List 1", user = user)
         val list2 = InventoryList(name = "List 2", user = user)
         val lists = listOf(list1, list2)
         every { inventoryListRepository.findAll() } returns lists
+        every { userService.getAuthenticatedUser() } returns user
 
         // When
         val result = inventoryListService.getAll()
@@ -36,10 +40,11 @@ class InventoryListServiceTests {
     @Test
     fun `getById should return the list with the given id`() {
         // Given
-        val user = User(userName = "luke.skywalker")
+        val user = User(0, userName = "luke.skywalker")
         val id = 1L
         val list = InventoryList(id = id, name = "List 1", user)
         every { inventoryListRepository.findById(id) } returns Optional.of(list)
+        every { userService.getAuthenticatedUser() } returns user
 
         // When
         val result = inventoryListService.getById(id)
@@ -52,8 +57,10 @@ class InventoryListServiceTests {
     @Test
     fun `getById should throw ResourceNotFoundException when list is not found`() {
         // Given
+        val user = User(0, userName = "luke.skywalker")
         val id = 1L
         every { inventoryListRepository.findById(id) } returns Optional.empty()
+        every { userService.getAuthenticatedUser() } returns user
 
         // When
         val exception = assertThrows<ResourceNotFoundException> {
@@ -65,12 +72,15 @@ class InventoryListServiceTests {
         verify { inventoryListRepository.findById(id) }
     }
 
+
+
     @Test
     fun `create should save the new list and return it`() {
         // Given
-        val user = User(userName = "luke.skywalker")
+        val user = User(0, userName = "luke.skywalker")
         val list = InventoryList(name = "List 1", user = user)
         every { inventoryListRepository.save(list) } returns list
+        every { userService.getAuthenticatedUser() } returns user
 
         // When
         val result = inventoryListService.create(list)
@@ -81,9 +91,27 @@ class InventoryListServiceTests {
     }
 
     @Test
+    fun `create should throw NotAuthorizedException when no user is authenticated`() {
+        // Given
+        val user = User(0, userName = "luke.skywalker")
+        val list = InventoryList(name = "List 1", user = user)
+        every { inventoryListRepository.save(list) } returns list
+        every { userService.getAuthenticatedUser() } returns null
+
+        // When
+        val exception = assertThrows<NotAuthorizedException> {
+            inventoryListService.create(list)
+        }
+
+        // Then
+        assertEquals("You must be logged in to perform this action", exception.message)
+        verify { userService.getAuthenticatedUser() }
+    }
+
+    @Test
     fun `update should save the updated list and return it`() {
         // Given
-        val user = User(userName = "luke.skywalker")
+        val user = User(0, userName = "luke.skywalker")
         val id = 1L
         val list = InventoryList(id = id, name = "List 1", user)
         val updatedList = list.copy(name = "Updated List")
@@ -103,6 +131,7 @@ class InventoryListServiceTests {
 //    fun `delete should delete the list with the given id`() {
 //        // Given
 //        val id = 1L
+//        every { inventoryListRepository.deleteById(id) }
 //
 //        // When
 //        inventoryListService.delete(id)
