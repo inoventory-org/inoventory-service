@@ -7,6 +7,7 @@ import com.inovex.inoventory.product.tag.dto.TagDto
 data class ProductDto(
     val id: Long? = null,
     val name: String,
+    val brands: String? = null,
     val ean: EAN? = null,
     val imageUrl: String? = null,
     val thumbUrl: String? = null,
@@ -15,6 +16,7 @@ data class ProductDto(
     fun toDomain(source: Source) = Product(
         id = id,
         name = name,
+        brands = brands,
         ean = ean?.value,
         source = source,
         imageUrl = imageUrl,
@@ -27,6 +29,7 @@ data class ProductDto(
             id = product.id,
             name = product.name,
             ean = product.ean?.let { EAN(it) },
+            brands = product.brands,
             imageUrl = product.imageUrl,
             thumbUrl = product.thumbUrl,
             tags = product.tags.map { TagDto.fromDomain(it) }.toSet()

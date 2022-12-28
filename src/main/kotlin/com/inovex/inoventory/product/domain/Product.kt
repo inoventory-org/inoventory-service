@@ -16,6 +16,7 @@ data class Product(
         val id: Long? = null,
         val name: String,
         val ean: String? = null,
+        val brands: String? = null,
         val source: Source,
         val imageUrl: String? = null,
         val thumbUrl: String? = null,

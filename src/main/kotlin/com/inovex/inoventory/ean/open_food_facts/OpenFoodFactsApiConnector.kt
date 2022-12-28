@@ -28,6 +28,7 @@ class OpenFoodFactsApiConnector(val httpClient: HttpClient) : EanApiConnector {
         return ProductDto(
             name = product.productName,
             ean = ean,
+            brands = product.brands,
             imageUrl = product.imageUrl,
             thumbUrl = product.imageThumbUrl
         )
