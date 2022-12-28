@@ -14,8 +14,8 @@ data class Product(
         @Id
         @GeneratedValue
         val id: Long? = null,
+        val ean: String,
         val name: String,
-        val ean: String? = null,
         val brands: String? = null,
         val source: Source,
         val imageUrl: String? = null,

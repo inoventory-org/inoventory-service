@@ -127,16 +127,18 @@ class InventoryListServiceTests {
         verify { inventoryListRepository.save(updatedList) }
     }
 
-//    @Test
-//    fun `delete should delete the list with the given id`() {
-//        // Given
-//        val id = 1L
-//        every { inventoryListRepository.deleteById(id) }
-//
-//        // When
-//        inventoryListService.delete(id)
-//
-//        // Then
-//        verify { inventoryListRepository.deleteById(id) }
-//    }
+    @Test
+    fun `delete should delete the list with the given id`() {
+        // Given
+        val id = 1L
+        val localInventoryListRepository = mockk<InventoryListRepository>(relaxed = true)
+        val localInventoryListService = InventoryListServiceImpl(localInventoryListRepository, userService)
+        every { localInventoryListRepository.deleteById(id) } returns Unit
+
+        // When
+        localInventoryListService.delete(id)
+
+        // Then
+        verify { localInventoryListRepository.deleteById(id) }
+    }
 }

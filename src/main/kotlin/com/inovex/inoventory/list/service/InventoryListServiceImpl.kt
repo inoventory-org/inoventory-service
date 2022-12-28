@@ -8,7 +8,8 @@ import com.inovex.inoventory.user.service.UserService
 import org.springframework.stereotype.Service
 
 @Service
-class InventoryListServiceImpl(private val inventoryListRepository: InventoryListRepository, private val userService: UserService) : InventoryListService {
+class InventoryListServiceImpl(private val inventoryListRepository: InventoryListRepository,
+                               private val userService: UserService) : InventoryListService {
 
     override fun getAll(): List<InventoryList> {
         return inventoryListRepository.findAll()
