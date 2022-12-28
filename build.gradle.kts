@@ -27,21 +27,26 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("com.h2database:h2")
-	runtimeOnly("org.postgresql:postgresql")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.mockk:mockk:1.13.3")
-	testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
 	implementation("io.ktor:ktor-client-core:$ktorVersion")
 	implementation("io.ktor:ktor-client-cio:$ktorVersion")
 	implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-	testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+
+	runtimeOnly("com.h2database:h2")
+	runtimeOnly("org.postgresql:postgresql")
+
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("io.mockk:mockk:1.13.3")
+	testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
+	testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+	testImplementation("org.testcontainers:testcontainers:1.17.6")
+
 }
 
 tasks.withType<KotlinCompile> {
