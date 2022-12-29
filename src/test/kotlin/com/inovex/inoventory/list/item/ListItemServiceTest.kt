@@ -54,7 +54,7 @@ class ListItemServiceTest {
         val product = Product(name = "product", ean = "1234567890", source = Source.USER)
         val list = InventoryList(id = 0L, name = "myList", user = User(userName = "luke.skywalker"))
         val listItem = ListItem(id = id, expirationDate = "2022-01-01", product = product, list = list)
-        every { repository.findByIdAndListId(id, 0L) } returns listItem
+        every { repository.findByIdOrNull(id) } returns listItem
 
         // When
         val result = service.findOrNull(id, 0L)
@@ -69,7 +69,7 @@ class ListItemServiceTest {
     fun `findOrNull should return null if no ListItem is found`() {
         // Given
         val id = 1L
-        every { repository.findByIdAndListId(id, 0L) } returns null
+        every { repository.findByIdOrNull(id) } returns null
 
         // When
         val result = service.findOrNull(id, 0L)
@@ -119,7 +119,7 @@ class ListItemServiceTest {
         val listItemDto = ListItemDTO(productEan = "1234567890", expirationDate = "2022-01-02", listId = 0L)
         val existingItem = ListItem(id = id, expirationDate = "2022-01-01", product = product, list = list)
         every { listRepository.findByIdOrNull(list.id) } returns list
-        every { repository.findByIdAndListId(id, 0L) } returns existingItem
+        every { repository.findByIdOrNull(id) } returns existingItem
         every { repository.save(any()) } returns existingItem.copy(expirationDate = listItemDto.expirationDate)
 
         // When
@@ -137,7 +137,7 @@ class ListItemServiceTest {
         // Given
         val id = 1L
         val listItemDto = ListItemDTO(productEan = "1234567890", expirationDate = "2022-01-02", listId = 0L)
-        every { repository.findByIdAndListId(id, 0L) } returns null
+        every { repository.findByIdOrNull(id) } returns null
 
         // When & Then
         assertThrows<ResourceNotFoundException> {

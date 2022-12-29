@@ -16,7 +16,7 @@ class ListItemService(private val repository: ListItemRepository,
     }
 
     fun findOrNull(id: Long, listId: Long): ListItemDTO? {
-        return repository.findByIdAndListId(id, listId)?.let{ ListItemDTO.fromDomain(it) }
+        return repository.findByIdOrNull(id)?.let{ ListItemDTO.fromDomain(it) }
     }
 
     fun create(listId: Long, listItemDto: ListItemDTO): ListItemDTO {
@@ -28,7 +28,7 @@ class ListItemService(private val repository: ListItemRepository,
     }
 
     fun update(id: Long, listId: Long, listItemDto: ListItemDTO): ListItemDTO {
-        val existingItem = repository.findByIdAndListId(id, listId)
+        val existingItem = repository.findByIdOrNull(id)
             ?: throw ResourceNotFoundException("ListItem with id $id not found")
         val potentialNewList =  listRepository.findByIdOrNull(listItemDto.listId)
             ?: throw ResourceNotFoundException("List with ID ${listItemDto.listId} not found.")

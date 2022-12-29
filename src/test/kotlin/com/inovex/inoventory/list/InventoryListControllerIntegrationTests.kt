@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 
@@ -126,22 +128,25 @@ class InventoryListControllerIntegrationTests {
         assertTrue(inventoryListService.getAll().isEmpty())
     }
 
-//    @Test
-//    fun `PUT - updates an existing list`() {
-//        // Given
-//        val user = userRepository.save(User(userName = "luke.skywalker"))
-//        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List", user = user))
-//
-//
-//        // When
-//        val updatedList = existingList.copy(name = "newListName")
-//        val response =
-//            restTemplate.put("/api/v1/inventory-lists/${existingList.id}", updatedList, InventoryList::class.java)
-//
-//        // Then
-//        assertEquals(HttpStatus.CREATED, response.statusCode)
-//        assertEquals(updatedList.name, response.body?.name)
-//    }
+    @Test
+    fun `PUT - updates an existing list`() {
+        // Given
+        val user = userRepository.save(User(userName = "luke.skywalker"))
+        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List", user = user))
+
+
+        // When
+        val updatedList = existingList.copy(name = "newListName")
+        val response =
+            restTemplate.exchange("/api/v1/inventory-lists/${existingList.id}", HttpMethod.PUT,  HttpEntity<InventoryList>(updatedList), InventoryList::class.java)
+
+        // Then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(updatedList.name, response.body?.name)
+
+        val listToCheck = inventoryListService.getById(existingList.id!!)
+        assertEquals(updatedList.name, listToCheck.name)
+    }
 
 
 }
