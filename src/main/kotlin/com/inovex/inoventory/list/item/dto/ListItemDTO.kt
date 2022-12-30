@@ -6,24 +6,22 @@ import com.inovex.inoventory.product.domain.Product
 
 data class ListItemDTO(
     val id: Long? = null,
+    val displayName: String? = null,
     val expirationDate: String?,
     val productEan: String,
     val listId: Long,
-    ) {
+) {
 
     fun toDomain(product: Product, list: InventoryList) = ListItem(
-        id = id,
-        expirationDate = expirationDate,
-        product = product,
-        list = list
+        id = id, expirationDate = expirationDate, product = product, list = list
     )
 
     companion object {
         fun fromDomain(listItem: ListItem) = ListItemDTO(
             id = listItem.id,
             expirationDate = listItem.expirationDate,
+            displayName  = listItem.product.brands?.let { "$it ${listItem.product.name}" } ?: listItem.product.name,
             productEan = listItem.product.ean,
-            listId = listItem.list.id!!
-        )
+            listId = listItem.list.id!!)
     }
 }
