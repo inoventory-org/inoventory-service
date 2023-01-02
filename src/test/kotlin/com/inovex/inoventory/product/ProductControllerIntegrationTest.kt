@@ -1,5 +1,6 @@
 package com.inovex.inoventory.product
 
+import com.c4_soft.springaddons.security.oauth2.test.annotations.WithMockJwtAuth
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.ProductDto
@@ -26,6 +27,7 @@ internal class ProductControllerIntegrationTest : Specification() {
     lateinit var objectMapper: ObjectMapper
 
     @Test
+    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET product works`() {
         val expected = listOf(
             ProductDto(id = 1, name = "MyProduct1", ean = EAN("01234567")),
@@ -43,7 +45,7 @@ internal class ProductControllerIntegrationTest : Specification() {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v1/products")
                 .accept(MediaType.APPLICATION_JSON)
-        )
+            )
             .andExpect(status().isOk).andReturn()
 
         val actual = objectMapper.readValue(result.response.contentAsString, Array<ProductDto>::class.java).toList()
