@@ -1,4 +1,3 @@
 package com.inovex.inoventory.exceptions
 
-class NotAuthorizedException(message: String?) : RuntimeException(message) {
-}
+class NotAuthorizedException(message: String?) : RuntimeException(message)

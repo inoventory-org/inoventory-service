@@ -18,5 +18,5 @@ data class InventoryList (
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    var user: User?
+    val user: User?
 )

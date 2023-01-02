@@ -1,4 +1,3 @@
 package com.inovex.inoventory.exceptions
 
-class ResourceNotFoundException(message: String?) : RuntimeException(message) {
-}
+class ResourceNotFoundException(message: String?) : RuntimeException(message)
