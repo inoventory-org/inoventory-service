@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 class ListItemController(private val listItemService: ListItemService) {
 
     @GetMapping
-    fun getAll(@PathVariable listId: Long): List<ListItemDTO> = listItemService.getAll(listId)
+    fun getAll(@PathVariable listId: Long): Map<String, List<ListItemDTO>> = listItemService.getAll(listId)
 
     @GetMapping("/{id}")
     fun getById(@PathVariable listId: Long, @PathVariable id: Long): ListItemDTO? = listItemService.findOrNull(id, listId)

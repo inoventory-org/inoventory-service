@@ -11,8 +11,9 @@ import org.springframework.stereotype.Service
 class ListItemService(private val repository: ListItemRepository,
                       private val productRepository: ProductRepository,
                       private val listRepository: InventoryListRepository) {
-    fun getAll(listId: Long): List<ListItemDTO> {
-        return repository.findAllByListId(listId).map { ListItemDTO.fromDomain(it) }
+    fun getAll(listId: Long): Map<String, List<ListItemDTO>> {
+        val items =  repository.findAllByListId(listId).map { ListItemDTO.fromDomain(it) }
+        return items.groupBy { it.productEan }
     }
 
     fun findOrNull(id: Long, listId: Long): ListItemDTO? {

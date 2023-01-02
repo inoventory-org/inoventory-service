@@ -28,23 +28,45 @@ class ListItemServiceTest {
     @Test
     fun `getAll should return a list of ListItemDTOs`() {
         // Given
-        val product = Product(name = "product", ean = "1234567890", source = Source.USER)
+        val product = Product(name = "product", brands = "Some-Brand", ean = "1234567890", source = Source.USER)
+        val product2 = Product(name = "product2", ean = "9876543210", source = Source.USER)
+
         val list = InventoryList(id = 0L, name = "myList", user = User(userName = "luke.skywalker"))
         val listItem1 = ListItem(id = 1L, expirationDate = "2022-01-01", product = product, list = list)
         val listItem2 = ListItem(id = 2L, expirationDate = "2022-01-02", product = product, list = list)
-        every { repository.findAllByListId(0L) } returns listOf(listItem1, listItem2)
+        val listItem3 = ListItem(id = 2L, expirationDate = "2022-01-02", product = product2, list = list)
+
+        every { repository.findAllByListId(0L) } returns listOf(listItem1, listItem2, listItem3)
 
         // When
         val result = service.getAll(0L)
 
         // Then
         assertEquals(2, result.size)
-        assertEquals(1L, result[0].id)
-        assertEquals("2022-01-01", result[0].expirationDate)
-        assertEquals(product.ean, result[0].productEan)
-        assertEquals(2L, result[1].id)
-        assertEquals("2022-01-02", result[1].expirationDate)
-        assertEquals(product.ean, result[1].productEan)
+
+        val firstItemGroup = result[product.ean]!!
+        val secondItemGroup = result[product2.ean]!!
+
+        assertEquals(2, firstItemGroup.size)
+        assertEquals(1, secondItemGroup.size)
+
+        assertEquals(listItem1.product.ean, firstItemGroup[0].productEan)
+        assertEquals(listItem1.list.id, firstItemGroup[0].listId)
+        assertEquals(listItem1.expirationDate, firstItemGroup[0].expirationDate)
+        var expectedDisplayName =  "${listItem1.product.brands ?: ""} ${listItem1.product.name}".trim()
+        assertEquals(expectedDisplayName, firstItemGroup[0].displayName)
+
+        assertEquals(listItem2.product.ean, firstItemGroup[1].productEan)
+        assertEquals(listItem2.list.id, firstItemGroup[1].listId)
+        assertEquals(listItem2.expirationDate, firstItemGroup[1].expirationDate)
+        expectedDisplayName =  "${listItem2.product.brands ?: ""} ${listItem2.product.name}".trim()
+        assertEquals(expectedDisplayName, firstItemGroup[1].displayName)
+
+        assertEquals(listItem3.product.ean, secondItemGroup[0].productEan)
+        assertEquals(listItem3.list.id, secondItemGroup[0].listId)
+        assertEquals(listItem3.expirationDate, secondItemGroup[0].expirationDate)
+        expectedDisplayName =  "${listItem3.product.brands ?: ""} ${listItem3.product.name}".trim()
+        assertEquals(expectedDisplayName, secondItemGroup[0].displayName)
     }
 
     @Test
