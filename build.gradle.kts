@@ -26,7 +26,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("com.c4-soft.springaddons:spring-addons-webmvc-jwt-resource-server:6.0.9") //workaround until keycloak adapts spring boot 3
-	implementation("com.c4-soft.springaddons:spring-addons-oauth2-test:6.0.9")
+
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -43,6 +43,7 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+	testImplementation("com.c4-soft.springaddons:spring-addons-webmvc-jwt-test:6.0.9")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.mockk:mockk:1.13.3")
 	testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
