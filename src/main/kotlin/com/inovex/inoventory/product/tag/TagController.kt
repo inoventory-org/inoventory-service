@@ -1,6 +1,6 @@
 package com.inovex.inoventory.product.tag
 
-import com.inovex.inoventory.product.tag.domain.Tag
+import com.inovex.inoventory.product.tag.entity.TagEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -14,5 +14,5 @@ class TagController(private val service: TagService) {
     fun getAll() = service.getAll()
 
     @PostMapping
-    fun post(@RequestBody tag: Tag) = service.create(tag)
+    fun post(@RequestBody tag: TagEntity) = service.create(tag)
 }

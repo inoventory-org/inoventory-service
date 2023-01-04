@@ -1,7 +1,7 @@
 package com.inovex.inoventory.product.entity
 
 import com.inovex.inoventory.list.item.entity.ListItemEntity
-import com.inovex.inoventory.product.tag.domain.Tag
+import com.inovex.inoventory.product.tag.entity.TagEntity
 import jakarta.persistence.*
 import java.time.Instant
 
@@ -22,5 +22,5 @@ data class ProductEntity(
     val listItems: List<ListItemEntity> = listOf(),
 
     @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
-    val tags: Set<Tag> = setOf(),
+    val tags: Set<TagEntity> = setOf(),
 )

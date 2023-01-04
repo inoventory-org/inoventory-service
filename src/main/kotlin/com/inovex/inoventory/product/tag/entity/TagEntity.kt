@@ -1,4 +1,4 @@
-package com.inovex.inoventory.product.tag.domain
+package com.inovex.inoventory.product.tag.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.inovex.inoventory.product.entity.ProductEntity
@@ -8,7 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.ManyToMany
 
 @Entity
-data class Tag(
+data class TagEntity(
         @Id
         @GeneratedValue
         val id: Long? = null,
@@ -23,7 +23,7 @@ data class Tag(
                 if (this === other) return true
                 if (javaClass != other?.javaClass) return false
 
-                other as Tag
+                other as TagEntity
 
                 if (name != other.name) return false
 
