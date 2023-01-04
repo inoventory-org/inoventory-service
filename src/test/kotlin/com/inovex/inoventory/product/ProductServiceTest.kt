@@ -1,10 +1,10 @@
 package com.inovex.inoventory.product
 
 import com.inovex.inoventory.ean.api.EanApiConnector
-import com.inovex.inoventory.product.entity.ProductEntity
-import com.inovex.inoventory.product.entity.SourceEntity
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
+import com.inovex.inoventory.product.entity.ProductEntity
+import com.inovex.inoventory.product.entity.SourceEntity
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -12,6 +12,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.springframework.data.jpa.domain.Specification
 
 class ProductServiceTest {
 
@@ -23,10 +24,10 @@ class ProductServiceTest {
     fun `findAll() works with empty repository`() {
         // given
         // no products were added
-        every { productRepository.findAll() } returns emptyList()
+        every { productRepository.findAll(any<Specification<ProductEntity>>()) } returns emptyList()
 
         // when
-        val products = productService.findAll(searchCriteria)
+        val products = productService.findAll()
 
         // then
         assertTrue(products.isEmpty())
