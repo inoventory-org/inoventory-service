@@ -7,13 +7,14 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import java.time.LocalDate
 
 @Entity
 data class ListItemEntity (
     @Id
     @GeneratedValue
     val id: Long? = null,
-    val expirationDate: String?, // TODO: replace with Date type, to allow for better queries/filtering on dates
+    val expirationDate: LocalDate?,
 
     @ManyToOne
     @JoinColumn(name = "ean")

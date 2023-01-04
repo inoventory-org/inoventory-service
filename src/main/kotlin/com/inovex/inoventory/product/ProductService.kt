@@ -6,6 +6,7 @@ import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class ProductService(private val repository: ProductRepository, private val apiConnector: EanApiConnector) {
@@ -17,7 +18,7 @@ class ProductService(private val repository: ProductRepository, private val apiC
     }
 
     fun create(product: Product, source: SourceEntity): Product {
-        return Product.fromEntity(repository.save(product.toEntity(source)))
+        return Product.fromEntity(repository.save(product.toEntity(source, Instant.now())))
     }
 
     private fun findAndCacheApiProduct(ean: EAN): Product? {

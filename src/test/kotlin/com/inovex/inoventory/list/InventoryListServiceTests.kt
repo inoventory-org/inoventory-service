@@ -3,12 +3,13 @@ import com.inovex.inoventory.list.InventoryListRepository
 import com.inovex.inoventory.list.entity.InventoryListEntity
 import com.inovex.inoventory.list.dto.InventoryList
 import com.inovex.inoventory.list.InventoryListService
+import com.inovex.inoventory.list.permission.PermissionService
+import com.inovex.inoventory.list.permission.dto.Permission
+import com.inovex.inoventory.list.permission.entity.AccessRight
 import com.inovex.inoventory.user.entity.UserEntity
 import com.inovex.inoventory.user.dto.UserDto
 import com.inovex.inoventory.user.service.UserService
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -19,17 +20,25 @@ class InventoryListServiceTests {
 
     private val inventoryListRepository = mockk<InventoryListRepository>()
     private val userService = mockk<UserService>()
-    private val inventoryListService = InventoryListService(inventoryListRepository, userService)
+    private val permissionService = mockk<PermissionService>()
+    private val inventoryListService = InventoryListService(inventoryListRepository, userService, permissionService)
 
     @Test
     fun `getAll should return all lists from the repository`() {
         // Given
         val user = UserEntity(userName = "luke.skywalker")
-        val list1 = InventoryListEntity(name = "List 1", user = user)
-        val list2 = InventoryListEntity(name = "List 2", user = user)
+        val list1 = InventoryListEntity(id = 1L, name = "List 1", user = user)
+        val list2 = InventoryListEntity(id = 2L, name = "List 2", user = user)
         val lists = listOf(list1, list2)
-        every { inventoryListRepository.findByUserId(user.id) } returns lists
+        every { inventoryListRepository.findAllByIdIn(lists.map { it.id!! }) } returns lists
         every { userService.getAuthenticatedUser() } returns UserDto.fromEntity(user)
+        every { permissionService.getByUserIdAndAccessRight(user.id, AccessRight.READ) } returns lists.map {
+            Permission(
+                it.id!!,
+                user.id,
+                AccessRight.READ
+            )
+        }
 
         // When
         val result = inventoryListService.getAll()
@@ -46,6 +55,7 @@ class InventoryListServiceTests {
         val list = InventoryList(id = id, name = "List 1", UserDto.fromEntity(user))
         every { inventoryListRepository.findByIdOrNull(id) } returns list.toEntity()
         every { userService.getAuthenticatedUser() } returns UserDto.fromEntity(user)
+        every { permissionService.userCanAccessList(user.id, id) } returns true
 
         // When
         val result = inventoryListService.getById(id)
@@ -81,6 +91,7 @@ class InventoryListServiceTests {
         val list = InventoryList(name = "List 1", user = UserDto.fromEntity(user))
         every { inventoryListRepository.save(list.toEntity()) } returns list.toEntity()
         every { userService.getAuthenticatedUser() } returns UserDto.fromEntity(user)
+        every { permissionService.createPermissions(user.id, list.id!!, any()) } just runs
 
         // When
         val result = inventoryListService.create(list)
@@ -100,6 +111,8 @@ class InventoryListServiceTests {
         every { inventoryListRepository.findByIdOrNull(id) } returns list.toEntity()
         every { inventoryListRepository.save(updatedList.toEntity()) } returns updatedList.toEntity()
         every { userService.getAuthenticatedUser() } returns UserDto.fromEntity(user)
+        every { permissionService.userCanEditList(user.id, id) } returns true
+        every { permissionService.userCanAccessList(user.id, id) } returns true
 
         // When
         val result = inventoryListService.update(id, updatedList)
@@ -115,11 +128,13 @@ class InventoryListServiceTests {
         val id = 1L
         val list = InventoryList(id = id, name = "List 1", UserDto.fromEntity(user))
         val localInventoryListRepository = mockk<InventoryListRepository>(relaxed = true)
-        val localInventoryListService = InventoryListService(localInventoryListRepository, userService)
+        val localInventoryListService =
+            InventoryListService(localInventoryListRepository, userService, permissionService)
 
         every { localInventoryListRepository.deleteById(id) } returns Unit
         every { localInventoryListRepository.findByIdOrNull(id) } returns list.toEntity()
         every { userService.getAuthenticatedUser() } returns UserDto.fromEntity(user)
+        every { permissionService.userCanDeleteList(user.id, id) } returns true
         // When
         localInventoryListService.delete(id)
 

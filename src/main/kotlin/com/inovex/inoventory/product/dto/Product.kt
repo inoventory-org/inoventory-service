@@ -3,6 +3,7 @@ package com.inovex.inoventory.product.dto
 import com.inovex.inoventory.product.entity.ProductEntity
 import com.inovex.inoventory.product.entity.SourceEntity
 import com.inovex.inoventory.product.tag.dto.TagDto
+import java.time.Instant
 
 data class Product(
     val id: Long? = null,
@@ -13,7 +14,7 @@ data class Product(
     val thumbUrl: String? = null,
     val tags: Set<TagDto> = setOf()
 ) {
-    fun toEntity(source: SourceEntity) = ProductEntity(
+    fun toEntity(source: SourceEntity, cacheTime: Instant?) = ProductEntity(
         id = id,
         name = name,
         brands = brands,
@@ -21,6 +22,7 @@ data class Product(
         source = source,
         imageUrl = imageUrl,
         thumbUrl = thumbUrl,
+        cachedTimestamp = cacheTime,
         tags = tags.map { it.toEntity() }.toSet()
     )
 

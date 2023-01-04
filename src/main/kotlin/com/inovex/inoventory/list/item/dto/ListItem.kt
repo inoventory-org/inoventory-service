@@ -3,11 +3,12 @@ package com.inovex.inoventory.list.item.dto
 import com.inovex.inoventory.list.entity.InventoryListEntity
 import com.inovex.inoventory.list.item.entity.ListItemEntity
 import com.inovex.inoventory.product.entity.ProductEntity
+import java.time.LocalDate
 
 data class ListItem(
     val id: Long? = null,
     val displayName: String? = null,
-    val expirationDate: String?,
+    val expirationDate: LocalDate?,
     val productEan: String,
     val listId: Long,
 ) {

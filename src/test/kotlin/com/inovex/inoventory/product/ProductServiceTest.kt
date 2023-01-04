@@ -70,14 +70,14 @@ class ProductServiceTest {
         val newProductDto = Product.fromEntity(newProduct)
 
         every { productRepository.findByEan(ean.value) } returns null
-        every { productRepository.save(newProduct) } returns newProduct
+        every { productRepository.save(match { it.ean == newProduct.ean }) } returns newProduct
         coEvery { apiConnector.findByEan(ean) } returns newProductDto
 
         // when
         val actual = productService.findOrNull(ean)
 
         // then
-        verify (exactly = 1) { productRepository.save(newProduct) }
+        verify (exactly = 1) { productRepository.save(match { it.ean == newProduct.ean }) }
         assertEquals(newProductDto, actual)
     }
 
