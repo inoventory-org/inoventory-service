@@ -188,9 +188,6 @@ data class Product(
     @SerialName("id")
     val id: String? = null,
 
-    @SerialName("_id")
-    val _id: String? = null,
-
     @SerialName("image_front_small_url")
     val imageFrontSmallUrl: String? = null,
 
