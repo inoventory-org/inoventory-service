@@ -1,7 +1,9 @@
 package com.inovex.inoventory.product.search
 
+import com.inovex.inoventory.product.entity.ProductEntity
+
 @JvmInline
-value class SearchString(val value: String) {
+value class SearchString(private val value: String) {
     init {
         require(regex.matches(value))
     }
@@ -15,8 +17,13 @@ value class SearchString(val value: String) {
         }.toList()
 
     companion object {
-        val regex = "([a-zA-Z0-9äöüÄÖÜß]*)(${
-            SearchOperator.values().joinToString("|") { it.representation }
-        })(([a-zA-Z0-9äöüÄÖÜß]|\\s|%)*)".toRegex()
+        val regex = buildRegex()
+        private fun buildRegex(): Regex {
+            val fields = ProductEntity::class.java.declaredFields.joinToString("|") { it.name }
+            val operators = SearchOperator.values().joinToString("|") { it.representation }
+            val values = "([a-zA-Z0-9äöüÄÖÜß]|\\s|%)*"
+
+            return "($fields)($operators)($values)".toRegex()
+        }
     }
 }
