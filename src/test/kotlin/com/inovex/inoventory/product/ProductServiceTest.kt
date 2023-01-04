@@ -1,10 +1,10 @@
 package com.inovex.inoventory.product
 
-import com.inovex.inoventory.ean.EanApiConnector
-import com.inovex.inoventory.product.domain.Product
-import com.inovex.inoventory.product.domain.Source
+import com.inovex.inoventory.ean.api.EanApiConnector
+import com.inovex.inoventory.product.entity.ProductEntity
+import com.inovex.inoventory.product.entity.SourceEntity
 import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.dto.ProductDto
+import com.inovex.inoventory.product.dto.Product
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -35,11 +35,11 @@ class ProductServiceTest {
     @Test
     fun `create() works`() {
         // given
-        val product = ProductDto(name = "Test Product", ean = EAN("12345678"))
+        val product = Product(name = "Test Product", ean = EAN("12345678"))
         every { productRepository.save(any()) } returnsArgument 0
 
         // when
-        val newProduct = productService.create(product, Source.USER)
+        val newProduct = productService.create(product, SourceEntity.USER)
 
         // then
         assertEquals(newProduct.name, product.name)
@@ -59,7 +59,7 @@ class ProductServiceTest {
         val actual = productService.findOrNull(ean)
 
         // then
-        assertEquals(ProductDto.fromDomain(cachedProduct), actual)
+        assertEquals(Product.fromEntity(cachedProduct), actual)
     }
 
     @Test
@@ -67,7 +67,7 @@ class ProductServiceTest {
         // given
         val ean = EAN("12345678")
         val newProduct = createMockProduct(ean)
-        val newProductDto = ProductDto.fromDomain(newProduct)
+        val newProductDto = Product.fromEntity(newProduct)
 
         every { productRepository.findByEan(ean.value) } returns null
         every { productRepository.save(newProduct) } returns newProduct
@@ -81,11 +81,11 @@ class ProductServiceTest {
         assertEquals(newProductDto, actual)
     }
 
-    private fun createMockProduct(ean: EAN) = Product(
+    private fun createMockProduct(ean: EAN) = ProductEntity(
         id = 42,
         name = "I'm cached!",
         ean = ean.value,
-        source = Source.API,
+        source = SourceEntity.API,
         tags = setOf()
     )
 }

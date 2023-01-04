@@ -1,9 +1,8 @@
-package com.inovex.inoventory.ean.open_food_facts
+package com.inovex.inoventory.ean.api.openfoodfacts
 
-import com.inovex.inoventory.ean.open_food_facts.dto.Product
-import com.inovex.inoventory.ean.open_food_facts.dto.ProductResponse
+import com.inovex.inoventory.ean.api.openfoodfacts.dto.ProductResponse
 import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.dto.ProductDto
+import com.inovex.inoventory.product.dto.Product
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import com.inovex.inoventory.ean.api.openfoodfacts.dto.Product as OpenFoodFactsProduct
 
 class OpenFoodFactsApiConnectorTest {
 
@@ -31,7 +31,7 @@ class OpenFoodFactsApiConnectorTest {
 
         // then
         val mockProduct = mockResponse.product!!
-        val expected = ProductDto(
+        val expected = Product(
             name = mockProduct.productName!!,
             ean = ean,
             imageUrl = mockProduct.imageUrl,
@@ -56,12 +56,13 @@ class OpenFoodFactsApiConnectorTest {
         private lateinit var httpClient: HttpClient
 
         val mockResponse = ProductResponse(
-            product = Product(
+            product = OpenFoodFactsProduct(
                 productName = "mockedProduct",
                 imageUrl = "image.png",
                 imageThumbUrl = "thumb.png"
             )
         )
+
         @JvmStatic
         @BeforeAll
         fun setup() {

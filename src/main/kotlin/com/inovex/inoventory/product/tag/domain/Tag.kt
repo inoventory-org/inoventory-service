@@ -1,7 +1,7 @@
 package com.inovex.inoventory.product.tag.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.inovex.inoventory.product.domain.Product
+import com.inovex.inoventory.product.entity.ProductEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
@@ -17,7 +17,7 @@ data class Tag(
 
         @ManyToMany
         @JsonIgnore
-        val products: Set<Product> = setOf()
+        val products: Set<ProductEntity> = setOf()
 ) {
         override fun equals(other: Any?): Boolean {
                 if (this === other) return true

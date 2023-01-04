@@ -3,7 +3,7 @@ package com.inovex.inoventory.product
 import com.c4_soft.springaddons.security.oauth2.test.annotations.WithMockJwtAuth
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.dto.ProductDto
+import com.inovex.inoventory.product.dto.Product
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,8 +30,8 @@ internal class ProductControllerIntegrationTest : Specification() {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET product works`() {
         val expected = listOf(
-            ProductDto(id = 1, name = "MyProduct1", ean = EAN("01234567")),
-            ProductDto(id = 2, name = "MyProduct2", ean = EAN("12345678"))
+            Product(id = 1, name = "MyProduct1", ean = EAN("01234567")),
+            Product(id = 2, name = "MyProduct2", ean = EAN("12345678"))
         )
         expected.forEach {
             println(objectMapper.writeValueAsString(it))
@@ -48,7 +48,7 @@ internal class ProductControllerIntegrationTest : Specification() {
             )
             .andExpect(status().isOk).andReturn()
 
-        val actual = objectMapper.readValue(result.response.contentAsString, Array<ProductDto>::class.java).toList()
+        val actual = objectMapper.readValue(result.response.contentAsString, Array<Product>::class.java).toList()
 
         assertEquals(expected, actual)
     }

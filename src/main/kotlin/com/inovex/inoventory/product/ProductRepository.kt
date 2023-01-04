@@ -1,8 +1,8 @@
 package com.inovex.inoventory.product
 
-import com.inovex.inoventory.product.domain.Product
+import com.inovex.inoventory.product.entity.ProductEntity
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface ProductRepository : JpaRepository<Product, Long> {
-    fun findByEan(ean: String) : Product?
+interface ProductRepository : JpaRepository<ProductEntity, Long> {
+    fun findByEan(ean: String) : ProductEntity?
 }

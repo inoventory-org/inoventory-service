@@ -1,6 +1,6 @@
-package com.inovex.inoventory.product.domain
+package com.inovex.inoventory.product.entity
 
-import com.inovex.inoventory.list.item.domain.ListItem
+import com.inovex.inoventory.list.item.entity.ListItemEntity
 import com.inovex.inoventory.product.tag.domain.Tag
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -10,19 +10,19 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 
 @Entity
-data class Product(
+data class ProductEntity(
         @Id
         @GeneratedValue
         val id: Long? = null,
         val ean: String,
         val name: String,
         val brands: String? = null,
-        val source: Source,
+        val source: SourceEntity,
         val imageUrl: String? = null,
         val thumbUrl: String? = null,
 
         @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL])
-        val listItems: List<ListItem> = listOf(),
+        val listItems: List<ListItemEntity> = listOf(),
 
         @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
         val tags: Set<Tag> = setOf(),

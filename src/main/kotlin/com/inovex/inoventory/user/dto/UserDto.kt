@@ -1,19 +1,19 @@
 package com.inovex.inoventory.user.dto
 
-import com.inovex.inoventory.user.domain.User
+import com.inovex.inoventory.user.entity.UserEntity
 import java.util.*
 
 data class UserDto(
     val id: UUID,
     val userName: String
 ) {
-    fun toDomain() = User(
+    fun toEntity() = UserEntity(
         id = id,
         userName = userName
     )
 
     companion object {
-        fun fromDomain(user: User) = UserDto(
+        fun fromEntity(user: UserEntity) = UserDto(
             id = user.id,
             userName = user.userName
         )

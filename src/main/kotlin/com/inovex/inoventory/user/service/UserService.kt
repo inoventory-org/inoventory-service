@@ -12,9 +12,9 @@ class UserService(
 ) {
     fun getAuthenticatedUser(): UserDto {
         val userDto = userDetailsExtractor.extractUser()
-        return UserDto.fromDomain(
+        return UserDto.fromEntity(
             repository.findByIdOrNull(userDto.id)
-                ?: repository.saveAndFlush(userDto.toDomain())
+                ?: repository.saveAndFlush(userDto.toEntity())
         )
     }
 }

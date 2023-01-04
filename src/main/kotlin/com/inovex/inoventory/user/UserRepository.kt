@@ -1,9 +1,9 @@
 package com.inovex.inoventory.user
 
-import com.inovex.inoventory.user.domain.User
+import com.inovex.inoventory.user.entity.UserEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
-interface UserRepository : JpaRepository<User, UUID> {
-    fun findByUserName(userName: String): User?
+interface UserRepository : JpaRepository<UserEntity, UUID> {
+    fun findByUserName(userName: String): UserEntity?
 }

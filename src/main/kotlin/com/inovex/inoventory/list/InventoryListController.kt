@@ -1,7 +1,6 @@
 package com.inovex.inoventory.list
 
-import com.inovex.inoventory.list.dto.InventoryListDto
-import com.inovex.inoventory.list.service.InventoryListService
+import com.inovex.inoventory.list.dto.InventoryList
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -17,10 +16,10 @@ class InventoryListController(private val inventoryListService: InventoryListSer
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody inventoryList: InventoryListDto) = inventoryListService.create(inventoryList)
+    fun create(@RequestBody inventoryList: InventoryList) = inventoryListService.create(inventoryList)
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody inventoryList: InventoryListDto) =
+    fun update(@PathVariable id: Long, @RequestBody inventoryList: InventoryList) =
         inventoryListService.update(id, inventoryList)
 
     @DeleteMapping("/{id}")

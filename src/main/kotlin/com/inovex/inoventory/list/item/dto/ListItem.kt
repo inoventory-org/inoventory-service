@@ -1,10 +1,10 @@
 package com.inovex.inoventory.list.item.dto
 
-import com.inovex.inoventory.list.domain.InventoryList
-import com.inovex.inoventory.list.item.domain.ListItem
-import com.inovex.inoventory.product.domain.Product
+import com.inovex.inoventory.list.entity.InventoryListEntity
+import com.inovex.inoventory.list.item.entity.ListItemEntity
+import com.inovex.inoventory.product.entity.ProductEntity
 
-data class ListItemDTO(
+data class ListItem(
     val id: Long? = null,
     val displayName: String? = null,
     val expirationDate: String?,
@@ -12,12 +12,12 @@ data class ListItemDTO(
     val listId: Long,
 ) {
 
-    fun toDomain(product: Product, list: InventoryList) = ListItem(
+    fun toEntity(product: ProductEntity, list: InventoryListEntity) = ListItemEntity(
         id = id, expirationDate = expirationDate, product = product, list = list
     )
 
     companion object {
-        fun fromDomain(listItem: ListItem) = ListItemDTO(
+        fun fromEntity(listItem: ListItemEntity) = ListItem(
             id = listItem.id,
             expirationDate = listItem.expirationDate,
             displayName  = listItem.product.brands?.let { "$it ${listItem.product.name}" } ?: listItem.product.name,

@@ -1,7 +1,7 @@
 package com.inovex.inoventory.config
 
 import com.inovex.inoventory.user.UserRepository
-import com.inovex.inoventory.user.domain.User
+import com.inovex.inoventory.user.entity.UserEntity
 import io.ktor.util.logging.*
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
@@ -17,7 +17,7 @@ class DbConfig {
         val testUserName = "luke.skywalker"
         val user = userRepository.findByUserName(testUserName)
         if (user == null) {
-            userRepository.save(User(userName = "luke.skywalker"))
+            userRepository.save(UserEntity(userName = "luke.skywalker"))
         }
     }
 

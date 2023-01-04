@@ -1,9 +1,9 @@
-package com.inovex.inoventory.ean.open_food_facts
+package com.inovex.inoventory.ean.api.openfoodfacts
 
-import com.inovex.inoventory.ean.EanApiConnector
-import com.inovex.inoventory.ean.open_food_facts.dto.ProductResponse
+import com.inovex.inoventory.ean.api.EanApiConnector
+import com.inovex.inoventory.ean.api.openfoodfacts.dto.ProductResponse
 import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.dto.ProductDto
+import com.inovex.inoventory.product.dto.Product
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 //@ConditionalOnProperty(value = ["app.ean-connector.type"], havingValue = "food")
 @Component
 class OpenFoodFactsApiConnector(val httpClient: HttpClient) : EanApiConnector {
-    override suspend fun findByEan(ean: EAN): ProductDto? {
+    override suspend fun findByEan(ean: EAN): Product? {
         val result = httpClient.get("$baseUrl${ean.value}.json")
         if (result.status != HttpStatusCode.OK)
             return null
@@ -25,7 +25,7 @@ class OpenFoodFactsApiConnector(val httpClient: HttpClient) : EanApiConnector {
         val product = response.product
         require(product.productName != null)
 
-        return ProductDto(
+        return Product(
             name = product.productName,
             ean = ean,
             brands = product.brands,

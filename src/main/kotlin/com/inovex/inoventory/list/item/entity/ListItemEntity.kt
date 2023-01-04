@@ -1,7 +1,7 @@
-package com.inovex.inoventory.list.item.domain
+package com.inovex.inoventory.list.item.entity
 
-import com.inovex.inoventory.list.domain.InventoryList
-import com.inovex.inoventory.product.domain.Product
+import com.inovex.inoventory.list.entity.InventoryListEntity
+import com.inovex.inoventory.product.entity.ProductEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
@@ -9,7 +9,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 
 @Entity
-data class ListItem (
+data class ListItemEntity (
     @Id
     @GeneratedValue
     val id: Long? = null,
@@ -17,9 +17,9 @@ data class ListItem (
 
     @ManyToOne
     @JoinColumn(name = "ean")
-    val product: Product,
+    val product: ProductEntity,
 
     @ManyToOne
     @JoinColumn(name = "list_id")
-    val list: InventoryList
+    val list: InventoryListEntity
 )

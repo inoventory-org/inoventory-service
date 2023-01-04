@@ -1,11 +1,11 @@
 import com.c4_soft.springaddons.security.oauth2.test.annotations.WithMockJwtAuth
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.inovex.inoventory.InoventoryApplication
-import com.inovex.inoventory.list.dto.InventoryListDto
-import com.inovex.inoventory.list.service.InventoryListService
+import com.inovex.inoventory.list.dto.InventoryList
+import com.inovex.inoventory.list.InventoryListService
 import com.inovex.inoventory.mock.TestConfig
 import com.inovex.inoventory.user.UserRepository
-import com.inovex.inoventory.user.domain.User
+import com.inovex.inoventory.user.entity.UserEntity
 import com.inovex.inoventory.user.dto.UserDto
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -50,10 +50,10 @@ class InventoryListControllerIntegrationTests {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET - getAll should return all inventory lists`() {
         // Given
-        val user = UserDto.fromDomain(userRepository.save(User(userName = "luke.skywalker")))
+        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
         val expectedInventoryLists = listOf(
-            InventoryListDto(name = "Grocery List", user = user),
-            InventoryListDto(name = "Household Items", user = user)
+            InventoryList(name = "Grocery List", user = user),
+            InventoryList(name = "Household Items", user = user)
         )
         expectedInventoryLists.forEach { inventoryListService.create(it) }
 
@@ -61,7 +61,7 @@ class InventoryListControllerIntegrationTests {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v1/inventory-lists").accept(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk).andReturn()
-        val actual = objectMapper.readValue(result.response.contentAsString, Array<InventoryListDto>::class.java)
+        val actual = objectMapper.readValue(result.response.contentAsString, Array<InventoryList>::class.java)
 
         // Then
         assertEquals(2, actual.size)
@@ -71,10 +71,10 @@ class InventoryListControllerIntegrationTests {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET {ID} - getting list by id should return the list with the given id`() {
         // Given
-        val user = UserDto.fromDomain(userRepository.save(User(userName = "luke.skywalker")))
+        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
         val expectedInventoryLists = listOf(
-            InventoryListDto(name = "Grocery List", user = user),
-            InventoryListDto(name = "Household Items", user = user)
+            InventoryList(name = "Grocery List", user = user),
+            InventoryList(name = "Household Items", user = user)
         )
 
         expectedInventoryLists.forEach {
@@ -83,7 +83,7 @@ class InventoryListControllerIntegrationTests {
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/inventory-lists/${expected.id}")
             ).andExpect(MockMvcResultMatchers.status().isOk).andReturn()
-            val actual = objectMapper.readValue(result.response.contentAsString, InventoryListDto::class.java)
+            val actual = objectMapper.readValue(result.response.contentAsString, InventoryList::class.java)
 
             // Then
             assertEquals(expected.id, actual.id)
@@ -95,8 +95,8 @@ class InventoryListControllerIntegrationTests {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET {ID} 404 - getting list by non existing id should return status 404`() {
         // Given
-        val user = UserDto.fromDomain(userRepository.save(User(userName = "luke.skywalker")))
-        val list = InventoryListDto(id = 1L, name = "Grocery List", user = user)
+        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
+        val list = InventoryList(id = 1L, name = "Grocery List", user = user)
 
 
         // When
@@ -113,8 +113,8 @@ class InventoryListControllerIntegrationTests {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `POST - create a new list works and returns created list`() {
         // Given
-        val user = UserDto.fromDomain(userRepository.save(User(userName = "luke.skywalker")))
-        val toCreate = InventoryListDto(id = 1L, name = "Grocery List", user = user)
+        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
+        val toCreate = InventoryList(id = 1L, name = "Grocery List", user = user)
 
         // When
         val result = mockMvc.perform(
@@ -122,7 +122,7 @@ class InventoryListControllerIntegrationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(toCreate))
         ).andExpect(MockMvcResultMatchers.status().isCreated).andReturn()
-        val actual = objectMapper.readValue(result.response.contentAsString, InventoryListDto::class.java)
+        val actual = objectMapper.readValue(result.response.contentAsString, InventoryList::class.java)
 
         // Then
         assertEquals(toCreate.name, actual.name)
@@ -132,9 +132,9 @@ class InventoryListControllerIntegrationTests {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `DELETE - delete a list`() {
         // Given
-        val user = UserDto.fromDomain(userRepository.save(User(userName = "luke.skywalker")))
+        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
         assertTrue(inventoryListService.getAll().isEmpty())
-        val existingList = inventoryListService.create(InventoryListDto(id = 1L, name = "Grocery List", user = user))
+        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List", user = user))
         assertTrue(inventoryListService.getAll().isNotEmpty())
 
         // When
@@ -150,8 +150,8 @@ class InventoryListControllerIntegrationTests {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `PUT - updates an existing list`() {
         // Given
-        val user = UserDto.fromDomain(userRepository.save(User(userName = "luke.skywalker")))
-        val existingList = inventoryListService.create(InventoryListDto(id = 1L, name = "Grocery List", user = user))
+        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
+        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List", user = user))
 
 
         // When
@@ -161,7 +161,7 @@ class InventoryListControllerIntegrationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedList))
         ).andExpect(MockMvcResultMatchers.status().isOk).andReturn()
-        val actual = objectMapper.readValue(result.response.contentAsString, InventoryListDto::class.java)
+        val actual = objectMapper.readValue(result.response.contentAsString, InventoryList::class.java)
 
 
         // Then

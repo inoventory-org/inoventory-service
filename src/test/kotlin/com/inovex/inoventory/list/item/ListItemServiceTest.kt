@@ -2,13 +2,13 @@ package com.inovex.inoventory.list.item
 
 import com.inovex.inoventory.exceptions.ResourceNotFoundException
 import com.inovex.inoventory.list.InventoryListRepository
-import com.inovex.inoventory.list.domain.InventoryList
-import com.inovex.inoventory.user.domain.User
-import com.inovex.inoventory.list.item.domain.ListItem
-import com.inovex.inoventory.list.item.dto.ListItemDTO
+import com.inovex.inoventory.list.entity.InventoryListEntity
+import com.inovex.inoventory.user.entity.UserEntity
+import com.inovex.inoventory.list.item.entity.ListItemEntity
+import com.inovex.inoventory.list.item.dto.ListItem
 import com.inovex.inoventory.product.ProductRepository
-import com.inovex.inoventory.product.domain.Product
-import com.inovex.inoventory.product.domain.Source
+import com.inovex.inoventory.product.entity.ProductEntity
+import com.inovex.inoventory.product.entity.SourceEntity
 import io.mockk.mockk
 import io.mockk.every
 import io.mockk.verify
@@ -28,13 +28,13 @@ class ListItemServiceTest {
     @Test
     fun `getAll should return a list of ListItemDTOs`() {
         // Given
-        val product = Product(name = "product", brands = "Some-Brand", ean = "1234567890", source = Source.USER)
-        val product2 = Product(name = "product2", ean = "9876543210", source = Source.USER)
+        val product = ProductEntity(name = "product", brands = "Some-Brand", ean = "1234567890", source = SourceEntity.USER)
+        val product2 = ProductEntity(name = "product2", ean = "9876543210", source = SourceEntity.USER)
 
-        val list = InventoryList(id = 0L, name = "myList", user = User(userName = "luke.skywalker"))
-        val listItem1 = ListItem(id = 1L, expirationDate = "2022-01-01", product = product, list = list)
-        val listItem2 = ListItem(id = 2L, expirationDate = "2022-01-02", product = product, list = list)
-        val listItem3 = ListItem(id = 2L, expirationDate = "2022-01-02", product = product2, list = list)
+        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val listItem1 = ListItemEntity(id = 1L, expirationDate = "2022-01-01", product = product, list = list)
+        val listItem2 = ListItemEntity(id = 2L, expirationDate = "2022-01-02", product = product, list = list)
+        val listItem3 = ListItemEntity(id = 2L, expirationDate = "2022-01-02", product = product2, list = list)
 
         every { repository.findAllByListId(0L) } returns listOf(listItem1, listItem2, listItem3)
 
@@ -73,9 +73,9 @@ class ListItemServiceTest {
     fun `findOrNull should return a ListItemDTO for the given id`() {
         // Given
         val id = 1L
-        val product = Product(name = "product", ean = "1234567890", source = Source.USER)
-        val list = InventoryList(id = 0L, name = "myList", user = User(userName = "luke.skywalker"))
-        val listItem = ListItem(id = id, expirationDate = "2022-01-01", product = product, list = list)
+        val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
+        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val listItem = ListItemEntity(id = id, expirationDate = "2022-01-01", product = product, list = list)
         every { repository.findByIdOrNull(id) } returns listItem
 
         // When
@@ -103,15 +103,15 @@ class ListItemServiceTest {
     @Test
     fun `create should create a new ListItem`() {
         // Given
-        val product = Product(name = "product", ean = "1234567890", source = Source.USER)
-        val list = InventoryList(id = 0L, name = "myList", user = User(userName = "luke.skywalker"))
-        val listItemDto = ListItemDTO(productEan = "1234567890", expirationDate = "2022-01-01", listId = 0)
-        every { productRepository.findByEan(listItemDto.productEan) } returns product
-        every { listRepository.findByIdOrNull(listItemDto.listId) } returns list
-        every { repository.save(any()) } returns ListItem(id = 1L, expirationDate = "2022-01-01", product = product, list = list)
+        val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
+        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val listItem = ListItem(productEan = "1234567890", expirationDate = "2022-01-01", listId = 0)
+        every { productRepository.findByEan(listItem.productEan) } returns product
+        every { listRepository.findByIdOrNull(listItem.listId) } returns list
+        every { repository.save(any()) } returns ListItemEntity(id = 1L, expirationDate = "2022-01-01", product = product, list = list)
 
         // When
-        val result = service.create(0L, listItemDto)
+        val result = service.create(0L, listItem)
 
         // Then
         assertEquals(1L, result.id)
@@ -123,12 +123,12 @@ class ListItemServiceTest {
     @Test
     fun `create should throw a ResourceNotFoundException if the product is not found`() {
         // Given
-        val listItemDto = ListItemDTO(expirationDate = "2022-01-01", productEan = "1234567890", listId = 0L)
-        every { productRepository.findByEan(listItemDto.productEan) } returns null
+        val listItem = ListItem(expirationDate = "2022-01-01", productEan = "1234567890", listId = 0L)
+        every { productRepository.findByEan(listItem.productEan) } returns null
 
         // When & Then
         assertThrows<ResourceNotFoundException> {
-            service.create(0L, listItemDto)
+            service.create(0L, listItem)
         }
     }
 
@@ -136,16 +136,16 @@ class ListItemServiceTest {
     fun `update should update an existing ListItem`() {
         // Given
         val id = 1L
-        val product = Product(name = "product", ean = "1234567890", source = Source.USER)
-        val list = InventoryList(id = 0L, name = "myList", user = User(userName = "luke.skywalker"))
-        val listItemDto = ListItemDTO(productEan = "1234567890", expirationDate = "2022-01-02", listId = 0L)
-        val existingItem = ListItem(id = id, expirationDate = "2022-01-01", product = product, list = list)
+        val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
+        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val listItem = ListItem(productEan = "1234567890", expirationDate = "2022-01-02", listId = 0L)
+        val existingItem = ListItemEntity(id = id, expirationDate = "2022-01-01", product = product, list = list)
         every { listRepository.findByIdOrNull(list.id) } returns list
         every { repository.findByIdOrNull(id) } returns existingItem
-        every { repository.save(any()) } returns existingItem.copy(expirationDate = listItemDto.expirationDate)
+        every { repository.save(any()) } returns existingItem.copy(expirationDate = listItem.expirationDate)
 
         // When
-        val result = service.update(id, 0L, listItemDto)
+        val result = service.update(id, 0L, listItem)
 
         // Then
         assertEquals(id, result.id)
@@ -158,12 +158,12 @@ class ListItemServiceTest {
     fun `update should throw a ResourceNotFoundException if the ListItem is not found`() {
         // Given
         val id = 1L
-        val listItemDto = ListItemDTO(productEan = "1234567890", expirationDate = "2022-01-02", listId = 0L)
+        val listItem = ListItem(productEan = "1234567890", expirationDate = "2022-01-02", listId = 0L)
         every { repository.findByIdOrNull(id) } returns null
 
         // When & Then
         assertThrows<ResourceNotFoundException> {
-            service.update(id, 0L, listItemDto)
+            service.update(id, 0L, listItem)
         }
     }
 
