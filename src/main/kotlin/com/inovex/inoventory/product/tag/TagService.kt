@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TagService(private val repository: TagRepository) {
-    fun getAll() = repository.findAll()
+    fun getAll() : List<TagEntity> = repository.findAll()
 
     fun create(tag: TagEntity): TagEntity {
         return repository.save(tag);
