@@ -26,7 +26,7 @@ class ProductServiceTest {
         every { productRepository.findAll() } returns emptyList()
 
         // when
-        val products = productService.findAll()
+        val products = productService.findAll(searchCriteria)
 
         // then
         assertTrue(products.isEmpty())
