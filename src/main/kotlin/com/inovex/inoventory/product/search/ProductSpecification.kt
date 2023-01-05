@@ -16,12 +16,15 @@ class ProductSpecification(private val searchCriteria: SearchCriteria) : Specifi
         query: CriteriaQuery<*>,
         criteriaBuilder: CriteriaBuilder
     ): Predicate = when (ProductEntity::class.java.declaredFields.single { it.name == searchCriteria.field }.type) {
-        String::class.java -> compareString(searchCriteria.value as String, root, criteriaBuilder)
-        in allowedComparableTypes -> compare(searchCriteria.value as Int, root, criteriaBuilder)
-        else -> throw InvalidSearchOperationException(
-            "Invalid search criteria: must be String or ${allowedComparableTypes.joinToString { it.name }}"
-        )
-    }
+            String::class.java -> compareString(searchCriteria.value as String, root, criteriaBuilder)
+            Int::class.java -> compare(searchCriteria.value as Int, root, criteriaBuilder)
+            Double::class.java ->compare(searchCriteria.value as Double, root, criteriaBuilder)
+            LocalDate::class.java ->compare(searchCriteria.value as LocalDate, root, criteriaBuilder)
+            Instant::class.java ->compare(searchCriteria.value as Instant, root, criteriaBuilder)
+            else -> throw InvalidSearchOperationException(
+                "Invalid search criteria: must be in ${allowedComparableTypes.joinToString { it.name }}"
+            )
+        }
 
     private fun <T : Comparable<T>> compare(
         value: T,
@@ -80,6 +83,7 @@ class ProductSpecification(private val searchCriteria: SearchCriteria) : Specifi
 
     companion object {
         private val allowedComparableTypes = listOf(
+            String::class.java,
             Int::class.java,
             Double::class.java,
             LocalDate::class.java,
