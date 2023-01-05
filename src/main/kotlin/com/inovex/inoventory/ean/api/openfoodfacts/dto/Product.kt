@@ -1,5 +1,7 @@
 package com.inovex.inoventory.ean.api.openfoodfacts.dto
 
+import com.inovex.inoventory.product.dto.EAN
+import com.inovex.inoventory.product.dto.Product as ProductDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -573,4 +575,12 @@ data class Product(
 
     @SerialName("vitamins_tags")
     val vitaminsTags: List<String> = emptyList(),
-)
+) {
+    fun toProductDto() = ProductDto(
+        name = productName ?: "",
+        ean = EAN(code ?: ""),
+        brands = brands,
+        imageUrl = imageUrl,
+        thumbUrl = imageThumbUrl
+    )
+}

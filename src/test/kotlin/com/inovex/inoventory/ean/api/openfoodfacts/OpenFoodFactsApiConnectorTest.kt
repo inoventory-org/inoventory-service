@@ -57,6 +57,7 @@ class OpenFoodFactsApiConnectorTest {
 
         val mockResponse = ProductResponse(
             product = OpenFoodFactsProduct(
+                code = "12345678",
                 productName = "mockedProduct",
                 imageUrl = "image.png",
                 imageThumbUrl = "thumb.png"
@@ -69,7 +70,7 @@ class OpenFoodFactsApiConnectorTest {
 
 
             val mockEngine = MockEngine {
-                if (it.url.toString().encodeURLPath().endsWith("12345678.json")) {
+                if (it.url.toString().encodeURLPath().contains("12345678.json")) {
                     respond(
                         status = HttpStatusCode.OK,
                         content = Json.encodeToString(mockResponse),

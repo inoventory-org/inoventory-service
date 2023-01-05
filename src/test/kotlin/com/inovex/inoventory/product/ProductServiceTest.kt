@@ -25,6 +25,7 @@ class ProductServiceTest {
         // given
         // no products were added
         every { productRepository.findAll(any<Specification<ProductEntity>>()) } returns emptyList()
+        coEvery { apiConnector.search(any()) } returns emptyList()
 
         // when
         val products = productService.findAll()
@@ -78,7 +79,7 @@ class ProductServiceTest {
         val actual = productService.findOrNull(ean)
 
         // then
-        verify (exactly = 1) { productRepository.save(match { it.ean == newProduct.ean }) }
+        verify(exactly = 1) { productRepository.save(match { it.ean == newProduct.ean }) }
         assertEquals(newProductDto, actual)
     }
 
