@@ -35,13 +35,13 @@ class ProductServiceTest {
     }
 
     @Test
-    fun `create() works`() {
+    fun `upsert() works`() {
         // given
         val product = Product(name = "Test Product", ean = EAN("12345678"))
         every { productRepository.save(any()) } returnsArgument 0
 
         // when
-        val newProduct = productService.create(product, SourceEntity.USER)
+        val newProduct = productService.upsert(product, SourceEntity.USER)
 
         // then
         assertEquals(newProduct.name, product.name)
@@ -58,7 +58,7 @@ class ProductServiceTest {
         every { productRepository.findByEan(ean.value) } returns cachedProduct
 
         // when
-        val actual = productService.findOrNull(ean)
+        val actual = productService.scan(ean)
 
         // then
         assertEquals(Product.fromEntity(cachedProduct), actual)
@@ -76,7 +76,7 @@ class ProductServiceTest {
         coEvery { apiConnector.findByEan(ean) } returns newProductDto
 
         // when
-        val actual = productService.findOrNull(ean)
+        val actual = productService.scan(ean)
 
         // then
         verify(exactly = 1) { productRepository.save(match { it.ean == newProduct.ean }) }
@@ -84,9 +84,8 @@ class ProductServiceTest {
     }
 
     private fun createMockProduct(ean: EAN) = ProductEntity(
-        id = 42,
-        name = "I'm cached!",
         ean = ean.value,
+        name = "I'm cached!",
         source = SourceEntity.API,
         tags = setOf()
     )
