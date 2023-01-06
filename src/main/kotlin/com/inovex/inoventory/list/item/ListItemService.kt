@@ -24,8 +24,8 @@ class ListItemService(private val repository: ListItemRepository,
         val product = productRepository.findByEan(listItem.productEan)
             ?: throw ResourceNotFoundException("Product with EAN ${listItem.productEan} not found.")
         val list = listRepository.findByIdOrNull(listId) ?: throw ResourceNotFoundException("List with ID $listId not found.")
-        val listItem = listItem.toEntity(product, list)
-        return repository.save(listItem).let { ListItem.fromEntity(it) }
+        val entity = listItem.toEntity(product, list)
+        return repository.save(entity).let { ListItem.fromEntity(it) }
     }
 
     fun update(id: Long, listId: Long, listItem: ListItem): ListItem {

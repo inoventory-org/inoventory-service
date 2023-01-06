@@ -8,11 +8,18 @@ import com.inovex.inoventory.product.search.ProductSpecification
 import com.inovex.inoventory.product.search.SearchCriteria
 import kotlinx.coroutines.runBlocking
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Service
 class ProductService(private val repository: ProductRepository, private val apiConnector: EanApiConnector) {
+
+    @Scheduled(cron = "0 0 0 * * *")
+    private fun updateProductCache() =
+        repository.findByCachedTimestampBefore(Instant.now().minus(1, ChronoUnit.DAYS))
+            .forEach { findAndCacheApiProduct(EAN(it.ean)) }
 
     fun findAll(searchCriteria: List<SearchCriteria> = listOf()): List<Product> {
         val specification = Specification.allOf(searchCriteria.map { ProductSpecification(it) })
@@ -23,15 +30,14 @@ class ProductService(private val repository: ProductRepository, private val apiC
         return findAndCacheApiProducts(searchCriteria)
     }
 
-    fun findOrNull(ean: EAN) =
-        repository.findByEan(ean.value)?.let { Product.fromEntity(it) } ?: findAndCacheApiProduct(ean)
+    fun scan(ean: EAN) = repository.findByEan(ean.value)?.let { Product.fromEntity(it) } ?: findAndCacheApiProduct(ean)
 
-    fun create(product: Product, source: SourceEntity) =
+    fun upsert(product: Product, source: SourceEntity): Product =
         Product.fromEntity(repository.save(product.toEntity(source, Instant.now())))
 
     private fun findAndCacheApiProduct(ean: EAN) =
-        runBlocking { apiConnector.findByEan(ean) }?.let { create(it, SourceEntity.API) }
+        runBlocking { apiConnector.findByEan(ean) }?.let { upsert(it, SourceEntity.API) }
 
     private fun findAndCacheApiProducts(searchCriteria: List<SearchCriteria>) =
-        runBlocking { apiConnector.search(searchCriteria) }.map { create(it, SourceEntity.API) }
+        runBlocking { apiConnector.search(searchCriteria) }.map { upsert(it, SourceEntity.API) }
 }

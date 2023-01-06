@@ -17,9 +17,9 @@ class ProductController(private val service: ProductService) {
     }
 
     @GetMapping(params = ["ean"])
-    fun get(@RequestParam ean: String) = service.findOrNull(EAN(ean))
+    fun scan(@RequestParam ean: String) = service.scan(EAN(ean))
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun post(@RequestBody product: Product) = service.create(product, SourceEntity.USER)
+    fun post(@RequestBody product: Product) = service.upsert(product, SourceEntity.USER)
 }

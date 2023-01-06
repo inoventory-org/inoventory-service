@@ -8,8 +8,6 @@ import java.time.Instant
 @Entity
 data class ProductEntity(
     @Id
-    @GeneratedValue
-    val id: Long? = null,
     val ean: String,
     val name: String,
     val brands: String? = null,

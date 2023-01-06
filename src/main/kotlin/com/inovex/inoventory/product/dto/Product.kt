@@ -6,19 +6,17 @@ import com.inovex.inoventory.product.tag.dto.Tag
 import java.time.Instant
 
 data class Product(
-    val id: Long? = null,
-    val name: String,
     val ean: EAN,
+    val name: String,
     val brands: String? = null,
     val imageUrl: String? = null,
     val thumbUrl: String? = null,
     val tags: Set<Tag> = setOf()
 ) {
     fun toEntity(source: SourceEntity, cacheTime: Instant?) = ProductEntity(
-        id = id,
+        ean = ean.value,
         name = name,
         brands = brands,
-        ean = ean.value,
         source = source,
         imageUrl = imageUrl,
         thumbUrl = thumbUrl,
@@ -28,9 +26,8 @@ data class Product(
 
     companion object {
         fun fromEntity(product: ProductEntity) = Product(
-            id = product.id,
-            name = product.name,
             ean = EAN(product.ean),
+            name = product.name,
             brands = product.brands,
             imageUrl = product.imageUrl,
             thumbUrl = product.thumbUrl,

@@ -30,8 +30,8 @@ internal class ProductControllerIntegrationTest : Specification() {
     @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET product works`() {
         val expected = listOf(
-            Product(id = 1, name = "MyProduct1", ean = EAN("01234567")),
-            Product(id = 2, name = "MyProduct2", ean = EAN("12345678"))
+            Product(name = "MyProduct1", ean = EAN("01234567")),
+            Product(name = "MyProduct2", ean = EAN("12345678"))
         )
         expected.forEach {
             println(objectMapper.writeValueAsString(it))
