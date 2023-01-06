@@ -11,7 +11,7 @@ Currently only reachable from within inovex network.
 2. Run with Gradle  
 `./gradlew bootRun`
 3. Swagger is running under  
-`http://localhost:8080/swagger/index.html`
+`http://localhost:8080/swagger-ui/index.html`
 
 ## Auth
 Keycloak is used for Authentication and Authorization. You need a user with role *inoventory-user*.

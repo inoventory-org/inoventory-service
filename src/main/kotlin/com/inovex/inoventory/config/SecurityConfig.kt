@@ -1,19 +1,19 @@
 package com.inovex.inoventory.config
 
-import com.c4_soft.springaddons.security.oauth2.config.synchronised.ExpressionInterceptUrlRegistryPostProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.web.SecurityFilterChain
 
 
 @Configuration
-@EnableMethodSecurity
 class SecurityConfig {
     @Bean
-    fun expressionInterceptUrlRegistryPostProcessor(): ExpressionInterceptUrlRegistryPostProcessor {
-        return ExpressionInterceptUrlRegistryPostProcessor {
-            it.requestMatchers("/**").hasAuthority("inoventory-user")
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http.authorizeHttpRequests {
+            it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
-        }
+        }.oauth2ResourceServer { it.jwt() }
+        return http.build()
     }
 }

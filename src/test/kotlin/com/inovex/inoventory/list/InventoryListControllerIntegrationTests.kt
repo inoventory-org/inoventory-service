@@ -1,12 +1,11 @@
-import com.c4_soft.springaddons.security.oauth2.test.annotations.WithMockJwtAuth
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.inovex.inoventory.InoventoryApplication
-import com.inovex.inoventory.list.dto.InventoryList
 import com.inovex.inoventory.list.InventoryListService
+import com.inovex.inoventory.list.dto.InventoryList
 import com.inovex.inoventory.mock.TestConfig
 import com.inovex.inoventory.user.UserRepository
-import com.inovex.inoventory.user.entity.UserEntity
 import com.inovex.inoventory.user.dto.UserDto
+import com.inovex.inoventory.user.entity.UserEntity
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -14,18 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.context.ActiveProfiles
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
-@SpringBootTest(
-    classes = [InoventoryApplication::class],
-)
+@WithMockUser
+@SpringBootTest(classes = [InoventoryApplication::class])
 @ContextConfiguration(classes = [TestConfig::class])
 class InventoryListControllerIntegrationTests {
     @Autowired
@@ -47,7 +45,6 @@ class InventoryListControllerIntegrationTests {
     }
 
     @Test
-    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET - getAll should return all inventory lists`() {
         // Given
         val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
@@ -68,7 +65,6 @@ class InventoryListControllerIntegrationTests {
     }
 
     @Test
-    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET {ID} - getting list by id should return the list with the given id`() {
         // Given
         val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
@@ -92,7 +88,6 @@ class InventoryListControllerIntegrationTests {
     }
 
     @Test
-    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `GET {ID} 404 - getting list by non existing id should return status 404`() {
         // Given
         val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
@@ -103,14 +98,10 @@ class InventoryListControllerIntegrationTests {
         val expected = inventoryListService.create(list)
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v1/inventory-lists/${expected.id!! + 42}")
-        )
-
-            // Then
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound) //<- Then
     }
 
     @Test
-    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `POST - create a new list works and returns created list`() {
         // Given
         val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
@@ -119,6 +110,7 @@ class InventoryListControllerIntegrationTests {
         // When
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/inventory-lists")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(toCreate))
         ).andExpect(MockMvcResultMatchers.status().isCreated).andReturn()
@@ -129,7 +121,6 @@ class InventoryListControllerIntegrationTests {
     }
 
     @Test
-    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `DELETE - delete a list`() {
         // Given
         val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
@@ -140,6 +131,7 @@ class InventoryListControllerIntegrationTests {
         // When
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/v1/inventory-lists/${existingList.id}")
+                .with(csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk)
 
         // Then
@@ -147,7 +139,6 @@ class InventoryListControllerIntegrationTests {
     }
 
     @Test
-    @WithMockJwtAuth(authorities = ["inoventory-user"])
     fun `PUT - updates an existing list`() {
         // Given
         val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
@@ -158,6 +149,7 @@ class InventoryListControllerIntegrationTests {
         val updatedList = existingList.copy(name = "newListName")
         val result = mockMvc.perform(
             MockMvcRequestBuilders.put("/api/v1/inventory-lists/${existingList.id}")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedList))
         ).andExpect(MockMvcResultMatchers.status().isOk).andReturn()

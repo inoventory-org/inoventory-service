@@ -25,7 +25,9 @@ dependencies {
 	implementation ("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("com.c4-soft.springaddons:spring-addons-webmvc-jwt-resource-server:6.0.10") //workaround until keycloak adapts spring boot 3
+	implementation("org.springframework.security:spring-security-oauth2-resource-server:6.0.1")
+	implementation("org.springframework.security:spring-security-oauth2-jose:6.0.1")
+
 
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -43,13 +45,12 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-	testImplementation("com.c4-soft.springaddons:spring-addons-webmvc-jwt-test:6.0.10")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.security:spring-security-test:6.0.1")
 	testImplementation("io.mockk:mockk:1.13.3")
 	testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
 	testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 	testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-	testImplementation("org.testcontainers:testcontainers:1.17.6")
 
 }
 
