@@ -10,19 +10,27 @@ data class ListItem(
     val displayName: String? = null,
     val expirationDate: LocalDate?,
     val productEan: String,
+    val imageUrl: String? = null,
+    val thumbUrl: String? = null,
     val listId: Long,
 ) {
 
     fun toEntity(product: ProductEntity, list: InventoryListEntity) = ListItemEntity(
-        id = id, expirationDate = expirationDate, product = product, list = list
+        id = id,
+        expirationDate = expirationDate,
+        product = product,
+        list = list
     )
 
     companion object {
         fun fromEntity(listItem: ListItemEntity) = ListItem(
             id = listItem.id,
             expirationDate = listItem.expirationDate,
-            displayName  = listItem.product.brands?.let { "$it ${listItem.product.name}" } ?: listItem.product.name,
+            displayName = listItem.product.brands?.let { "$it ${listItem.product.name}" } ?: listItem.product.name,
             productEan = listItem.product.ean,
-            listId = listItem.list.id!!)
+            imageUrl = listItem.product.imageUrl,
+            thumbUrl = listItem.product.thumbUrl,
+            listId = listItem.list.id!!
+        )
     }
 }
