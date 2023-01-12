@@ -65,7 +65,7 @@ deploy:
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "export POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "export PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD"
     - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL}"
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "echo $REGISTRY_PASSWORD |  docker login --username $REGISTRY_USER --password-stdin $REGISTRY_URL"
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d"
   after_script:
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose.yml
