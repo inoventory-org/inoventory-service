@@ -68,4 +68,4 @@ deploy:
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "echo $REGISTRY_PASSWORD |  docker login --username $REGISTRY_USER --password-stdin $REGISTRY_URL"
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d"
   after_script:
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose.yml
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f docker-compose.yml"
