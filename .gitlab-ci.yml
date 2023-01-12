@@ -54,7 +54,7 @@ deploy:
     -  eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-      - chmod 644 ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
 #    - chmod 600 ~/.ssh/id_rsa
 #    - eval "$(ssh-agent -s)"
 #    - ssh-add ~/.ssh/id_rsa
@@ -63,7 +63,7 @@ deploy:
     - sed -i "s/POSTGRES_PASSWORD/$POSTGRES_PASSWORD/g" docker-compose.yml
     - sed -i "s/PGADMIN_DEFAULT_PASSWORD/$PGADMIN_DEFAULT_PASSWORD/g" docker-compose.yml
     - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL};
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL};"
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d"
   after_script:
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose.yml
