@@ -1,12 +1,25 @@
 version: '3.5'
 
 services:
+  app:
+    image: registry.inovex.de:4567/railabouni/inoventory-service
+    container_name: app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8080:8080"
+    networks:
+      - postgres
   db:
     image: postgres
-    container_name: local_pgdb
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: postgres
       PGDATA: /data/postgres
     volumes:
@@ -40,3 +53,4 @@ networks:
 volumes:
   postgres:
   pgadmin:
+  kc_postgres_data:
