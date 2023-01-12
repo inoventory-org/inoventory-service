@@ -44,12 +44,8 @@ docker-publish:
 deploy:
   stage: deploy
   when: manual
-  image: gitlab/dind:latest
   only:
     - "main"
-#  environment: production
-  services:
-    - docker:dind
   before_script:
     - mkdir -p ~/.ssh
     - export SSH_PRIVATE_KEY=$(echo $SSH_PRIVATE_KEY_BASE64 | base64 -d)
@@ -62,7 +58,7 @@ deploy:
     - sed -i "s/POSTGRES_PASSWORD/$POSTGRES_PASSWORD/g" docker-compose.yml
     - sed -i "s/PGADMIN_DEFAULT_PASSWORD/$PGADMIN_DEFAULT_PASSWORD/g" docker-compose.yml
     - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/
-    - ssh ubuntu@$SERVER_IP_PUBLIC "docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
+    - ssh ubuntu@$SERVER_IP_PUBLIC "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL};
     - ssh ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d
   after_script:
-    - ssh ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose
+    - ssh ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose.yml
