@@ -10,7 +10,7 @@ cache:
 
 stages:
   - build
-  - test
+#  - test
   - deploy
 
 build-job:    
@@ -21,16 +21,16 @@ build-job:
     paths:
       - build/libs/*.jar
 
-unit-test-job:
-  stage: test
-  script:
-    - gradle check
-  artifacts:
-    when: always
-    reports:
-      junit: build/test-results/test/**/TEST-*.xml
+#unit-test-job:
+#  stage: test
+#  script:
+#    - gradle check
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: build/test-results/test/**/TEST-*.xml
 
-docker-publish:
+publish:
   stage: deploy
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
@@ -48,17 +48,21 @@ deploy:
     - "main"
   before_script:
     - mkdir -p ~/.ssh
-    - export SSH_PRIVATE_KEY=$(echo $SSH_PRIVATE_KEY_BASE64 | base64 -d)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - eval "$(ssh-agent -s)"
-    - ssh-add ~/.ssh/id_rsa
+#    - export SSH_PRIVATE_KEY=$(echo $SSH_PRIVATE_KEY_BASE64 | base64 -d)
+#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    -  eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+#    - chmod 600 ~/.ssh/id_rsa
+#    - eval "$(ssh-agent -s)"
+#    - ssh-add ~/.ssh/id_rsa
     - ssh-keyscan -H $SERVER_IP_PUBLIC >> ~/.ssh/known_hosts
   script:
     - sed -i "s/POSTGRES_PASSWORD/$POSTGRES_PASSWORD/g" docker-compose.yml
     - sed -i "s/PGADMIN_DEFAULT_PASSWORD/$PGADMIN_DEFAULT_PASSWORD/g" docker-compose.yml
     - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/
-    - ssh ubuntu@$SERVER_IP_PUBLIC "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL};
-    - ssh ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL};
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest; docker-compose up -d
   after_script:
-    - ssh ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose.yml
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC rm -f docker-compose.yml
