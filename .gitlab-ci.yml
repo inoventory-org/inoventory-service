@@ -46,7 +46,7 @@ deploy:
   when: manual
   image: gitlab/dind:latest
   only:
-    - "master"
+    - "main"
 #  environment: production
   services:
     - docker:dind
