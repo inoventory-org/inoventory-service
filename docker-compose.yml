@@ -1,5 +1,4 @@
 version: '3.5'
-
 services:
   app:
     image: registry.inovex.de:4567/railabouni/inoventory-service
@@ -17,6 +16,7 @@ services:
       - postgres
   db:
     image: postgres
+    container_name: postgres_app
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
