@@ -12,34 +12,34 @@ stages:
   - build
   - test
   - deploy
-
-build-job:
-  stage: build
-  script:
-    - gradle assemble
-  artifacts:
-    paths:
-      - build/libs/*.jar
-
-unit-test-job:
-  stage: test
-  script:
-    - gradle check
-  artifacts:
-    when: always
-    reports:
-      junit: build/test-results/test/**/TEST-*.xml
-
-publish:
-  stage: deploy
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint: [""]
-  script:
-    - /kaniko/executor
-      --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+#
+#build-job:
+#  stage: build
+#  script:
+#    - gradle assemble
+#  artifacts:
+#    paths:
+#      - build/libs/*.jar
+#
+#unit-test-job:
+#  stage: test
+#  script:
+#    - gradle check
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: build/test-results/test/**/TEST-*.xml
+#
+#publish:
+#  stage: deploy
+#  image:
+#    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+#    entrypoint: [""]
+#  script:
+#    - /kaniko/executor
+#      --context "${CI_PROJECT_DIR}"
+#      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+#      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
 
 deploy:
   stage: deploy
@@ -49,19 +49,18 @@ deploy:
   before_script:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-
-    -  eval $(ssh-agent -s)
+    - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - ssh-keyscan -H $SERVER_IP_PUBLIC >> ~/.ssh/known_hosts
+    - echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
+    - echo PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD >> .env
   script:
-
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "export POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "export PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD"
-    - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/
+    - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/app
+    - scp -r .env ubuntu@${SERVER_IP_PUBLIC}:~/app
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "echo $REGISTRY_PASSWORD |  docker login --username $REGISTRY_USER --password-stdin $REGISTRY_URL"
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker pull registry.inovex.de:4567/railabouni/inoventory-service:latest"
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker-compose -f docker-compose.yml up -d"
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker-compose -f ~/app/docker-compose.yml up -d"
   after_script:
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f docker-compose.yml"
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f ~/docker-compose.yml; rm -f ~/.env"
