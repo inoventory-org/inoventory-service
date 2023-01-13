@@ -54,7 +54,7 @@ deploy:
     - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - ssh-keyscan -H $SERVER_IP_PUBLIC >> ~/.ssh/known_hosts
-    - ls -la .ssh/
+    - ls -la ~/.ssh
     - echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
     - echo PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD >> .env
   script:
