@@ -13,7 +13,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - postgres
+      - inoventory
   db:
     image: postgres
     container_name: postgres_app
@@ -27,7 +27,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      - inoventory
     restart: unless-stopped
 
   pgadmin:
@@ -43,11 +43,11 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
-      - postgres
+      - inoventory
     restart: unless-stopped
 
 networks:
-  postgres:
+  inoventory:
     driver: bridge
 
 volumes:
