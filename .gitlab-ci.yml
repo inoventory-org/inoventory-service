@@ -65,5 +65,13 @@ deploy:
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker image rm registry.inovex.de:4567/railabouni/inoventory-service"
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker-compose -f ~/app/docker-compose.yml up -d"
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f ~/app/.env" # For some reason unable to run SSH in after_script
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker logout"
   after_script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ssh-keyscan -H $SERVER_IP_PUBLIC >> ~/.ssh/known_hosts
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f ~/app/.env"
