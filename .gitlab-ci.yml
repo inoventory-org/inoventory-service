@@ -43,7 +43,7 @@ stages:
 
 deploy:
   stage: deploy
-  when: manual
+#  when: manual
   only:
     - "main"
   before_script:
@@ -57,7 +57,7 @@ deploy:
     - echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
     - echo PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD >> .env
   script:
-    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "mkdir ~/app"
+    - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "mkdir -p ~/app"
     - scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/app
     - scp -r .env ubuntu@${SERVER_IP_PUBLIC}:~/app
     - ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "echo $REGISTRY_PASSWORD |  docker login --username $REGISTRY_USER --password-stdin $REGISTRY_URL"
