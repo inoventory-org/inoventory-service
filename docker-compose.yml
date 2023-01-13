@@ -29,7 +29,6 @@ services:
     networks:
       - inoventory
     restart: unless-stopped
-
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
@@ -39,7 +38,6 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
       - pgadmin:/var/lib/pgadmin
-
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
@@ -53,4 +51,3 @@ networks:
 volumes:
   postgres:
   pgadmin:
-  kc_postgres_data:
