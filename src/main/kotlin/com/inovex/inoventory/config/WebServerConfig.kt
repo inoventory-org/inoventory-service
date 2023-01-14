@@ -10,13 +10,12 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 class WebServerConfig {
 
     @Value("\${cors.originPatterns:default}")
-    private val corsOriginPatterns: String = ""
+    private val corsOriginPatterns: String = "*"
 
     @Bean
-    fun addCorsConfig(): WebMvcConfigurer {
+    fun addCorsConfig():  WebMvcConfigurer{
         return object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
-
                 val allowedOrigins = corsOriginPatterns.split(",").toTypedArray()
                 registry.addMapping("/**")
                     .allowedMethods("*")
