@@ -11,6 +11,7 @@ cache:
 stages:
   - build
   - test
+  - publish
   - deploy
 
 build-job:
@@ -31,7 +32,7 @@ unit-test-job:
       junit: build/test-results/test/**/TEST-*.xml
 
 publish:
-  stage: deploy
+  stage: publish
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
