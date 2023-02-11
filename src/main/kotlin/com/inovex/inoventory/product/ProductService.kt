@@ -30,7 +30,12 @@ class ProductService(private val repository: ProductRepository, private val apiC
         return findAndCacheApiProducts(searchCriteria)
     }
 
-    fun scan(ean: EAN) = repository.findByEan(ean.value)?.let { Product.fromEntity(it) } ?: findAndCacheApiProduct(ean)
+    fun scan(ean: EAN, fresh: Boolean = false) : Product? {
+        if (fresh) {
+            return findAndCacheApiProduct(ean)
+        }
+        return repository.findByEan(ean.value)?.let { Product.fromEntity(it) } ?: findAndCacheApiProduct(ean)
+    }
 
     fun upsert(product: Product, source: SourceEntity): Product =
         Product.fromEntity(repository.save(product.toEntity(source, Instant.now())))

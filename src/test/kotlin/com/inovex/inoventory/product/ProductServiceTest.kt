@@ -6,10 +6,7 @@ import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.entity.ProductEntity
 import com.inovex.inoventory.product.entity.SourceEntity
 import com.inovex.inoventory.product.tag.entity.TagEntity
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -65,6 +62,7 @@ class ProductServiceTest {
         assertEquals(Product.fromEntity(cachedProduct), actual)
     }
 
+
     @Test
     fun `findOrNull() caches product for new EAN`() {
         // given
@@ -83,6 +81,32 @@ class ProductServiceTest {
         verify(exactly = 1) { productRepository.save(match { it.ean == newProduct.ean }) }
         assertEquals(newProductDto, actual)
     }
+
+    @Test
+    fun `scan() with fresh=true forces new product fetch`() {
+        // given
+        val ean = EAN("12345678")
+        val newProduct = createMockProduct(ean)
+        val newProductDto = Product.fromEntity(newProduct)
+
+        every { productRepository.findByEan(ean.value) } returns null
+        every { productRepository.save(match { it.ean == newProduct.ean }) } returns newProduct
+        coEvery { apiConnector.findByEan(ean) } returns newProductDto
+
+        // when
+        productService.scan(ean) // first call should cache product
+
+        every { productRepository.findByEan(ean.value) } returns newProduct
+        productService.scan(ean) // second call should get cached product
+        val actual = productService.scan(ean, true) // by setting fresh=true, product should be fetched and cached again
+
+
+        // then
+        verify(exactly = 2) { productRepository.save(match { it.ean == newProduct.ean }) }
+        coVerify(exactly = 2) { apiConnector.findByEan(ean)}
+        assertEquals(newProductDto, actual)
+    }
+
 
     private fun createMockProduct(ean: EAN) = ProductEntity(
         ean = ean.value,

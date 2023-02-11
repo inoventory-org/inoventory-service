@@ -16,8 +16,11 @@ class ProductController(private val service: ProductService) {
         return service.findAll(searchCriteria ?: listOf())
     }
 
-    @GetMapping(params = ["ean"])
-    fun scan(@RequestParam ean: String) = service.scan(EAN(ean))
+    @GetMapping(params = ["ean", "fresh"])
+    fun scan(
+        @RequestParam ean: String,
+        @RequestParam(required = false, defaultValue = "false") fresh: Boolean
+    ) = service.scan(EAN(ean), fresh)
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
