@@ -9,6 +9,7 @@ import com.inovex.inoventory.list.item.dto.ListItem
 import com.inovex.inoventory.product.ProductRepository
 import com.inovex.inoventory.product.entity.ProductEntity
 import com.inovex.inoventory.product.entity.SourceEntity
+import com.inovex.inoventory.product.tag.entity.TagEntity
 import io.mockk.mockk
 import io.mockk.every
 import io.mockk.verify
@@ -72,6 +73,59 @@ class ListItemServiceTest {
         assertEquals(listItem3.expirationDate, secondItemGroup[0].expirationDate)
         expectedDisplayName = "${listItem3.product.brands ?: ""} ${listItem3.product.name}".trim()
         assertEquals(expectedDisplayName, secondItemGroup[0].displayName)
+    }
+
+    @Test
+    fun `getAllGroupBy should return a grouped map of ItemWrappers grouped by category`() {
+        // Given
+        val category1Name = "breakfast"
+        val category2Name = "snacks"
+        val product =
+            ProductEntity(name = "breakfast product", brands = "Some-Brand", ean = "1234567890", source = SourceEntity.USER, tags = listOf(
+                TagEntity(1, category1Name)
+            ))
+        val product2 = ProductEntity(name = "snack1", ean = "9876543210", source = SourceEntity.USER, tags = listOf(
+            TagEntity(2, category2Name)
+        ))
+        val product3 = ProductEntity(name = "snack2", ean = "9876543299", source = SourceEntity.USER, tags = listOf(
+            TagEntity(2, category2Name)
+        ))
+
+
+        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val listItem1 =
+            ListItemEntity(id = 1L, expirationDate = LocalDate.of(2022, 1, 2), product = product, list = list)
+        val listItem2 =
+            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product, list = list)
+        val listItem3 =
+            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product2, list = list)
+        val listItem4 =
+            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product3, list = list)
+
+        every { repository.findAllByListId(0L) } returns listOf(listItem1, listItem2, listItem3, listItem4)
+        every { productRepository.findByEan(product.ean) } returns product
+        every { productRepository.findByEan(product2.ean) } returns product2
+        every { productRepository.findByEan(product3.ean) } returns product3
+
+        // When
+        val result = service.getAllGroupedBy(0L, "category")
+
+        // Then
+        assertEquals(2, result.size)
+
+        val firstItemGroup = result[category1Name]!!
+        val secondItemGroup = result[category2Name]!!
+
+        assertEquals(1, firstItemGroup.size)
+        assertEquals(2, secondItemGroup.size)
+
+        assert(result.keys.contains(category1Name))
+        assert(result.keys.contains(category2Name))
+
+        assertEquals(2, firstItemGroup.first().items?.size)
+        assertEquals(1, secondItemGroup[0].items?.size)
+        assertEquals(1, secondItemGroup[1].items?.size)
+
     }
 
     @Test
