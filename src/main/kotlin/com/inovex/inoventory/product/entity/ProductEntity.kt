@@ -20,5 +20,5 @@ data class ProductEntity(
     val listItems: List<ListItemEntity> = listOf(),
 
     @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
-    val tags: Set<TagEntity> = setOf(),
+    val tags: List<TagEntity> = listOf(),
 )

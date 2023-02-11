@@ -12,6 +12,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 //Example for usage when multiple APIs can be requested:
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component
 @Component
 class OpenFoodFactsApiConnector(val httpClient: HttpClient) : EanApiConnector {
     override suspend fun findByEan(ean: EAN): Product? {
-        val url = "$baseUrl/api/v0/product/${ean.value}.json&fields=$fields"
+        val url = "$baseUrl/api/v3/product/${ean.value}.json&fields=$fields"
         val result = httpClient.get(url)
         if (result.status != HttpStatusCode.OK)
             return null
@@ -49,8 +50,9 @@ class OpenFoodFactsApiConnector(val httpClient: HttpClient) : EanApiConnector {
     }
 
     companion object {
-        private const val baseUrl = "https://world.openfoodfacts.org"
-        private const val fields = "code,product_name,image_url,image_thumb_url,brands"
+        @Value("\${openfoodfacts.baseurl:https://de.openfoodfacts.org}")
+        private const val baseUrl = "https://de.openfoodfacts.org"
+        private const val fields = "code,product_name,image_url,image_thumb_url,brands,categories_hierarchy"
         private const val pageSize = 10
     }
 }

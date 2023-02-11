@@ -11,7 +11,7 @@ data class Product(
     val brands: String? = null,
     val imageUrl: String? = null,
     val thumbUrl: String? = null,
-    val tags: Set<Tag> = setOf()
+    var tags: List<Tag> = listOf()
 ) {
     fun toEntity(source: SourceEntity, cacheTime: Instant?) = ProductEntity(
         ean = ean.value,
@@ -21,7 +21,7 @@ data class Product(
         imageUrl = imageUrl,
         thumbUrl = thumbUrl,
         cachedTimestamp = cacheTime,
-        tags = tags.map { it.toEntity() }.toSet()
+        tags = tags.map { it.toEntity() }
     )
 
     companion object {
@@ -31,7 +31,7 @@ data class Product(
             brands = product.brands,
             imageUrl = product.imageUrl,
             thumbUrl = product.thumbUrl,
-            tags = product.tags.map { Tag.fromEntity(it) }.toSet()
+            tags = product.tags.map { Tag.fromEntity(it) }
         )
     }
 }

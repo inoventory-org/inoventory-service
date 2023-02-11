@@ -1,6 +1,7 @@
 package com.inovex.inoventory.ean.api.openfoodfacts.dto
 
 import com.inovex.inoventory.product.dto.EAN
+import com.inovex.inoventory.product.tag.dto.Tag
 import com.inovex.inoventory.product.dto.Product as ProductDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -581,6 +582,7 @@ data class Product(
         ean = EAN(code ?: ""),
         brands = brands,
         imageUrl = imageUrl,
-        thumbUrl = imageThumbUrl
+        thumbUrl = imageThumbUrl,
+        tags = categoriesHierarchy.map { Tag(it) }
     )
 }

@@ -5,6 +5,7 @@ import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.entity.ProductEntity
 import com.inovex.inoventory.product.entity.SourceEntity
+import com.inovex.inoventory.product.tag.entity.TagEntity
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -87,6 +88,6 @@ class ProductServiceTest {
         ean = ean.value,
         name = "I'm cached!",
         source = SourceEntity.API,
-        tags = setOf()
+        tags = listOf(TagEntity(1, "en:breakfast"))
     )
 }
