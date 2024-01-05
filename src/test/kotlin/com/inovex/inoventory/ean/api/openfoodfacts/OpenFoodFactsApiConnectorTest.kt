@@ -5,17 +5,21 @@ import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import com.inovex.inoventory.ean.api.openfoodfacts.dto.Product as OpenFoodFactsProduct
+
+private const val DEFAULT_USER_AGENT = "inoventory/0.0.1 (eilabouni.rudy@gmail.com)"
 
 class OpenFoodFactsApiConnectorTest {
 
@@ -52,6 +56,16 @@ class OpenFoodFactsApiConnectorTest {
         assertNull(result)
     }
 
+    @Test
+    fun `httpClient sets user agent`() {
+        // given
+        runBlocking {
+            val result = httpClient.get("www.someurl.com/12345678.json")
+            assertTrue(result.request.headers.contains(HttpHeaders.UserAgent, DEFAULT_USER_AGENT))
+        }
+    }
+
+
     companion object {
         private lateinit var httpClient: HttpClient
 
@@ -67,8 +81,6 @@ class OpenFoodFactsApiConnectorTest {
         @JvmStatic
         @BeforeAll
         fun setup() {
-
-
             val mockEngine = MockEngine {
                 if (it.url.toString().encodeURLPath().contains("12345678.json")) {
                     respond(
@@ -94,6 +106,9 @@ class OpenFoodFactsApiConnectorTest {
                             ignoreUnknownKeys = true
                         }
                     )
+                }
+                install(UserAgent) {
+                    agent = DEFAULT_USER_AGENT
                 }
             }
         }
