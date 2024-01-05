@@ -50,8 +50,8 @@ class OpenFoodFactsApiConnector(val httpClient: HttpClient) : EanApiConnector {
     }
 
     companion object {
-        @Value("\${openfoodfacts.baseurl:https://de.openfoodfacts.org}")
-        private const val baseUrl = "https://de.openfoodfacts.org"
+        @Value("\${openfoodfacts.baseurl:https://de.openfoodfacts.net}")
+        private const val baseUrl = "https://de.openfoodfacts.net"
         private const val fields = "code,product_name,image_url,image_thumb_url,brands,categories_hierarchy"
         private const val pageSize = 10
     }
