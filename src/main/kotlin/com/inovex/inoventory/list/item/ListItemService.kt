@@ -58,7 +58,9 @@ class ListItemService(
         return repository.save(updatedItem).let { ListItem.fromEntity(it) }
     }
 
-    fun delete(id: Long) {
+    fun delete(id: Long): ListItem? {
+        val item = findOrNull(id, -1L)
         repository.deleteById(id)
+        return item
     }
 }

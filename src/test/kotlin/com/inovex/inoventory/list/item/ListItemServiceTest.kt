@@ -3,19 +3,20 @@ package com.inovex.inoventory.list.item
 import com.inovex.inoventory.exceptions.ResourceNotFoundException
 import com.inovex.inoventory.list.InventoryListRepository
 import com.inovex.inoventory.list.entity.InventoryListEntity
-import com.inovex.inoventory.user.entity.UserEntity
-import com.inovex.inoventory.list.item.entity.ListItemEntity
 import com.inovex.inoventory.list.item.dto.ListItem
+import com.inovex.inoventory.list.item.entity.ListItemEntity
 import com.inovex.inoventory.product.ProductRepository
 import com.inovex.inoventory.product.entity.ProductEntity
 import com.inovex.inoventory.product.entity.SourceEntity
 import com.inovex.inoventory.product.tag.entity.TagEntity
-import io.mockk.mockk
+import com.inovex.inoventory.user.entity.UserEntity
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 
@@ -235,16 +236,45 @@ class ListItemServiceTest {
     }
 
     @Test
-    fun `delete should delete the ListItem with the given id`() {
+    fun `delete should delete the ListItem with the given id and return the deleted item`() {
         // Given
         val id = 1L
+    val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
+        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val listItem = ListItem(
+            productEan = "1234567890",
+            expirationDate = LocalDate.of(2022, 1, 1),
+            listId = 0L,
+            displayName = "product",
+            id = id
+        )
+        val existingItem =
+            ListItemEntity(id = id, expirationDate = LocalDate.of(2022, 1, 1), product = product, list = list)
+        every { listRepository.findByIdOrNull(list.id) } returns list
+        every { repository.findByIdOrNull(id) } returns existingItem
         every { repository.deleteById(id) } returns Unit
 
         // When
-        service.delete(id)
+        val actualItem = service.delete(id)
 
         // Then
         verify { repository.deleteById(id) }
+        assertEquals(listItem, actualItem)
+    }
+
+    @Test
+    fun `delete should silently ignore the request and return null when no item with requested Id is found`() {
+        // Given
+        val id = 1L
+        every { repository.findByIdOrNull(id) } returns null
+        every { repository.deleteById(id) } returns Unit
+
+        // When
+        val actualItem = service.delete(id)
+
+        // Then
+        verify { repository.deleteById(id) }
+        assertEquals(null, actualItem)
     }
 
 }

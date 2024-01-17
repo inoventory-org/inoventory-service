@@ -29,5 +29,5 @@ class ListItemController(private val listItemService: ListItemService) {
         listItemService.update(id, listId, inventoryList)
 
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable listId: Long, @PathVariable id: Long) = listItemService.delete(id)
+    fun delete(@PathVariable listId: Long, @PathVariable id: Long): ListItem? = listItemService.delete(id)
 }
