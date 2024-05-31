@@ -12,7 +12,7 @@ env:
   IMAGE_NAME: inoventory-service
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
@@ -27,10 +27,6 @@ jobs:
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
 
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
 
@@ -65,7 +61,7 @@ jobs:
 
 
   deploy:
-    needs: publish
+    needs: build-and-publish
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via Docker-Compose
