@@ -92,6 +92,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "mkdir -p ~/app"
           scp -r docker-compose.yml ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
           scp -r .env ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "export COMMIT_SHA=${{ github.sha }}"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "echo ${{ secrets.GITHUB_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker-compose -f ~/app/docker-compose.yml up -d"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "rm -f ~/app/.env" # For some reason unable to run SSH in after_script
