@@ -58,7 +58,7 @@ jobs:
 
       - name: Push Docker image to GitHub Container Registry
         run: |
-            docker push ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --all-tags
+            docker push ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }} --all-tags
         
   deploy:
     needs: publish
