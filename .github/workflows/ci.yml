@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: #manual
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: inoventory-service
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - name: Run build with Gradle Wrapper
+        run: ./gradlew build
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: inoventory-service-build-artifact
+          path: build/libs/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@master
+        with:
+          name: inoventory-service-build-artifact
+          path: build/libs/
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -t ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest .
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+            docker push ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }} --all-tags
+        
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          eval "$(ssh-agent -s)"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: |
+          eval "$(ssh-agent -s)"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
+          ssh-keyscan -H ${{ secrets.SERVER_IP_PUBLIC }} >> ~/.ssh/known_hosts
+          # Test the SSH connection with verbose output
+          ssh -v -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "echo 'SSH connection successful'"
+          # If SSH connection is successful, proceed with deployment
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }} >> .env
+          echo KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} >> .env
+          echo APP_TAG=${{ github.sha }} >> .env
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "mkdir -p ~/app"
+          scp -r docker-compose.yml ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
+          scp -r .env ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "echo ${{ secrets.GITHUB_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin"
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker-compose -f ~/app/docker-compose.yml up -d"
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "rm -f ~/app/.env" # For some reason unable to run SSH in after_script
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker logout"
+
+      - name: Clean up
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          eval "$(ssh-agent -s)"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.SERVER_IP_PUBLIC }} >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "rm -f ~/app/.env"
