@@ -93,6 +93,7 @@ jobs:
           scp -r .env ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "export COMMIT_SHA=${{ github.sha }}"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "echo ${{ secrets.GITHUB_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin"
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker image rm ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker-compose -f ~/app/docker-compose.yml up -d"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "rm -f ~/app/.env" # For some reason unable to run SSH in after_script
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker logout"
