@@ -80,6 +80,7 @@ jobs:
 
       - name: Deploy
         run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
           ssh-keyscan -H ${{ secrets.SERVER_IP_PUBLIC }} >> ~/.ssh/known_hosts
           # Test the SSH connection with verbose output
           ssh -v -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "echo 'SSH connection successful'"
