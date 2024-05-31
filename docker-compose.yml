@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   app:
-    image: registry.inovex.de:4567/railabouni/inoventory-service
+    image: ghcr.io/inoventory-org/inoventory-service
     container_name: app
     depends_on:
       - db

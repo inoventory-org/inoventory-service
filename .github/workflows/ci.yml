@@ -95,8 +95,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "mkdir -p ~/app"
           scp -r docker-compose.yml ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
           scp -r .env ubuntu@${{ secrets.SERVER_IP_PUBLIC }}:~/app
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USER }} --password-stdin ${{ secrets.REGISTRY_URL }}"
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker image rm registry.inovex.de:4567/railabouni/inoventory-service"
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker login ghcr.io/${{ github.repository_owner }}"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker-compose -f ~/app/docker-compose.yml up -d"
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "rm -f ~/app/.env" # For some reason unable to run SSH in after_script
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP_PUBLIC }} "docker logout"
