@@ -36,6 +36,8 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    permissions: write-all
+
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
@@ -59,11 +61,13 @@ jobs:
         run: |
             docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             docker push ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
+        
+          
 
   deploy:
     needs: publish
     runs-on: ubuntu-latest
+
     steps:
       - name: Deploy via Docker-Compose
         run: |
