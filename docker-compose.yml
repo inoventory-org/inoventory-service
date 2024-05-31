@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   app:
-    image: ghcr.io/inoventory-org/inoventory-service:${COMMIT_SHA}
+    image: ghcr.io/inoventory-org/inoventory-service:latest
     container_name: app
     depends_on:
       - db
