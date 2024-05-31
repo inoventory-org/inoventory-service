@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: #manual
 
 env:
   REGISTRY: ghcr.io
@@ -26,7 +27,7 @@ jobs:
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
 
-  deploy:
+  publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -55,3 +56,38 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via Docker-Compose
+        run: |
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            eval $(ssh-agent -s)
+            echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+            ssh-keyscan -H $SERVER_IP_PUBLIC >> ~/.ssh/known_hosts
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker-compose -f ~/app/docker-compose.yml down --rmi local --remove-orphans"
+            echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
+            echo PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD >> .env
+            echo KEYCLOAK_URL=$KEYCLOAK_URL >> .env
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "mkdir -p ~/app"
+            scp -r docker-compose.yml ubuntu@${SERVER_IP_PUBLIC}:~/app
+            scp -r .env ubuntu@${SERVER_IP_PUBLIC}:~/app
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "echo $REGISTRY_PASSWORD | docker login --username $REGISTRY_USER --password-stdin $REGISTRY_URL"
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker image rm registry.inovex.de:4567/railabouni/inoventory-service"
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker-compose -f ~/app/docker-compose.yml up -d"
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f ~/app/.env" # For some reason unable to run SSH in after_script
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "docker logout"
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            eval $(ssh-agent -s)
+            echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+            ssh-keyscan -H $SERVER_IP_PUBLIC >> ~/.ssh/known_hosts
+            ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP_PUBLIC "rm -f ~/app/.env"   
