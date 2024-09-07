@@ -7,13 +7,14 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.lang.Nullable
 import java.time.Instant
 import java.time.LocalDate
 
 class ProductSpecification(private val searchCriteria: SearchCriteria) : Specification<ProductEntity> {
     override fun toPredicate(
         root: Root<ProductEntity>,
-        query: CriteriaQuery<*>,
+        @Nullable query: CriteriaQuery<*>?,
         criteriaBuilder: CriteriaBuilder
     ): Predicate {
         return when (ProductEntity::class.java.declaredFields.single { it.name == searchCriteria.field }.type) {
