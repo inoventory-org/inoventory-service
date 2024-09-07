@@ -99,5 +99,5 @@ jobs:
             mkdir -p ~/app
             echo ${{ secrets.GITHUB_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
             docker-compose -f ~/app/docker-compose.yml up -d
-            rm -f ~/app/.env"
+            rm -f ~/app/.env
             docker logout
