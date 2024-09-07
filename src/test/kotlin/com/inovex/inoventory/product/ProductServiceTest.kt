@@ -1,6 +1,7 @@
 package com.inovex.inoventory.product
 
-import com.inovex.inoventory.ean.api.EanApiConnector
+import com.inovex.inoventory.openfoodfacts.EanConnector
+import com.inovex.inoventory.openfoodfacts.ProductsConnector
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.entity.ProductEntity
@@ -15,8 +16,9 @@ import org.springframework.data.jpa.domain.Specification
 class ProductServiceTest {
 
     private val productRepository: ProductRepository = mockk()
-    private val apiConnector: EanApiConnector = mockk()
-    private val productService = ProductService(productRepository, apiConnector)
+    private val apiConnector: EanConnector = mockk()
+    private val productsConnector: ProductsConnector = mockk()
+    private val productService = ProductService(productRepository, apiConnector, productsConnector)
 
     @Test
     fun `findAll() works with empty repository`() {

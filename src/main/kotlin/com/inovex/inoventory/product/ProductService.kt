@@ -1,6 +1,7 @@
 package com.inovex.inoventory.product
 
-import com.inovex.inoventory.ean.api.EanApiConnector
+import com.inovex.inoventory.openfoodfacts.EanConnector
+import com.inovex.inoventory.openfoodfacts.ProductsConnector
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.entity.SourceEntity
@@ -14,7 +15,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @Service
-class ProductService(private val repository: ProductRepository, private val apiConnector: EanApiConnector) {
+class ProductService(private val repository: ProductRepository, private val apiConnector: EanConnector, private val productsConnector: ProductsConnector) {
 
     @Scheduled(cron = "0 0 0 * * *")
     private fun updateProductCache() =
