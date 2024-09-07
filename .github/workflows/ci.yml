@@ -89,10 +89,11 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
-          script: |  
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            export PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
-            export KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+          script: |
+            echo ${{ secrets.POSTGRES_PASSWORD }} | docker secret create postgres_password -
+            echo ${{ secrets.PGADMIN_DEFAULT_PASSWORD }} | docker secret create pgadmin_default_password -
+            echo ${{ secrets.KEYCLOAK_URL }} | docker secret create keycloak_url -
+          
             export APP_TAG=${{ github.sha }}
             
             mkdir -p ~/app

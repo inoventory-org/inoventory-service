@@ -54,9 +54,9 @@ volumes:
 
 secrets:
   postgres_password:
-    environment: POSTGRES_PASSWORD
+    external: true
   pgadmin_default_password:
-    environment: PGADMIN_DEFAULT_PASSWORD
+    external: true
   keycloak_url:
-    environment: keycloak_url
+    external: true
 
