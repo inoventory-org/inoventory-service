@@ -1,6 +1,6 @@
-package com.inovex.inoventory.ean.api.openfoodfacts
+package com.inovex.inoventory.openfoodfacts.api
 
-import com.inovex.inoventory.ean.api.openfoodfacts.dto.ProductResponse
+import com.inovex.inoventory.openfoodfacts.api.dto.ProductResponse
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import io.ktor.client.*
@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import com.inovex.inoventory.ean.api.openfoodfacts.dto.Product as OpenFoodFactsProduct
+import com.inovex.inoventory.openfoodfacts.api.dto.Product as OpenFoodFactsProduct
 
 private const val DEFAULT_USER_AGENT = "inoventory/0.0.1 (eilabouni.rudy@gmail.com)"
 
