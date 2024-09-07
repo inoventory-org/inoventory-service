@@ -2,8 +2,10 @@
 
 ---
 
-Api for **Inoventory** (not a prepper app!) using Spring Boot 3 + Kotlin. 
-Currently only reachable from within inovex network.
+Api for **Inoventory** (not a prepper app!) using Spring Boot 3 + Kotlin.
+
+## Java Version
+This project requires Java 22. Use jenv or sdkman to configure your local environment.
 
 ## Running
 1. Start PostgresDB   
