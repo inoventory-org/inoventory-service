@@ -10,7 +10,6 @@ import com.inovex.inoventory.mock.TestConfig
 import com.inovex.inoventory.notification.dto.Notification
 import com.inovex.inoventory.notification.entity.NotificationEntity
 import com.inovex.inoventory.product.ProductRepository
-import com.inovex.inoventory.product.ProductService
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.entity.SourceEntity
