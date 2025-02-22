@@ -7,13 +7,23 @@ Api for **Inoventory** (not a prepper app!) using Spring Boot 3 + Kotlin.
 ## Java Version
 This project requires Java 22. Use jenv or sdkman to configure your local environment.
 
-## Running
+## Running locally
 1. Start PostgresDB   
-`docker compose up -d`
+`docker compose -f docker-compose.local.yml up -d`
 2. Run with Gradle  
-`./gradlew bootRun`
-3. Swagger is running under  
-`http://localhost:8080/swagger-ui/index.html`
+`./gradlew bootRun --args='--spring.profiles.active=local'`
+
+### Swagger
+Swagger is running under `http://localhost:8080/swagger-ui/index.html`
+
+### Postgres
+Access PGAdmin via `http://localhost:5050/browser/`. 
+
+Connect to the inoventory database with the following configuration:
+- Hostname: postgres_app
+- Username: postgres
+- Password: postgres
+
 
 ## Auth
 Keycloak is used for Authentication and Authorization. You need a user with role *inoventory-user*.
