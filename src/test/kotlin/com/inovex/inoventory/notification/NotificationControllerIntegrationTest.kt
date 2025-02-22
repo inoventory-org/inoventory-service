@@ -18,8 +18,8 @@ import com.inovex.inoventory.product.tag.dto.Tag
 import com.inovex.inoventory.user.UserRepository
 import com.inovex.inoventory.user.dto.UserDto
 import com.inovex.inoventory.user.entity.UserEntity
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -66,7 +66,7 @@ internal class NotificationControllerIntegrationTest : Specification() {
     lateinit var notificationRepository: NotificationRepository
 
 
-    @BeforeEach
+    @AfterEach
     fun cleanDB() {
         notificationRepository.deleteAll()
         listItemRepository.deleteAll()
