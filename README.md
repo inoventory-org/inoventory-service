@@ -30,6 +30,6 @@ Keycloak is used for Authentication and Authorization. You need a user with role
 Every call must contain a valid Bearer token issued by Keycloak.
 
 ## Links
-Service is running at: http://10.100.255.76:8080/  
+Service is running at: http://10.100.255.76:8080/  (http://inoventory.railabouni.fra.ics.inovex.io/)
 Keycloak is running at http://10.100.255.76:8081/
 
