@@ -3,7 +3,7 @@
 #WORKDIR /src
 #RUN ./gradlew build -x test
 
-FROM openjdk:22
+FROM openjdk:22-jdk
 RUN mkdir /app
 COPY /build/libs/*.jar /app/
 WORKDIR /app
