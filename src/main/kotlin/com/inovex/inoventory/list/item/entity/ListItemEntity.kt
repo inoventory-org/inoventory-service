@@ -1,7 +1,6 @@
 package com.inovex.inoventory.list.item.entity
 
 import com.inovex.inoventory.list.entity.InventoryListEntity
-import com.inovex.inoventory.product.entity.ProductEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
@@ -15,10 +14,11 @@ data class ListItemEntity (
     @GeneratedValue
     val id: Long? = null,
     val expirationDate: LocalDate?,
-
-    @ManyToOne
-    @JoinColumn(name = "ean")
-    val product: ProductEntity,
+    val productEan: String,
+    val productName: String,
+    val productBrands: String? = null,
+    val productImageUrl: String? = null,
+    val productThumbUrl: String? = null,
 
     @ManyToOne
     @JoinColumn(name = "list_id")

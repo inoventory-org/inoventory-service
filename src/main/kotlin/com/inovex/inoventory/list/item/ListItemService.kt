@@ -5,14 +5,15 @@ import com.inovex.inoventory.exceptions.ResourceNotFoundException
 import com.inovex.inoventory.list.InventoryListRepository
 import com.inovex.inoventory.list.item.dto.ItemWrapper
 import com.inovex.inoventory.list.item.dto.ListItem
-import com.inovex.inoventory.product.ProductRepository
+import com.inovex.inoventory.product.ProductService
+import com.inovex.inoventory.product.dto.EAN
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class ListItemService(
     private val repository: ListItemRepository,
-    private val productRepository: ProductRepository,
+    private val productService: ProductService,
     private val listRepository: InventoryListRepository
 ) {
     fun getAll(listId: Long): Map<String, List<ListItem>> {
@@ -26,7 +27,8 @@ class ListItemService(
         }
         val items = repository.findAllByListId(listId).map { ListItem.fromEntity(it) }
         val itemWrappers = items.groupBy { it.productEan }.map { (ean, items) ->
-            ItemWrapper(ean, productRepository.findByEan(ean)?.tags?.firstOrNull()?.name, items, listId)
+            val category = productService.scan(EAN(ean))?.tags?.firstOrNull()?.name
+            ItemWrapper(ean, category, items, listId)
         }
         return itemWrappers.groupBy { it.category.toString() }
     }
@@ -36,7 +38,7 @@ class ListItemService(
     }
 
     fun create(listId: Long, listItem: ListItem): ListItem {
-        val product = productRepository.findByEan(listItem.productEan)
+        val product = productService.scan(EAN(listItem.productEan))
             ?: throw ResourceNotFoundException("Product with EAN ${listItem.productEan} not found.")
         val list =
             listRepository.findByIdOrNull(listId) ?: throw ResourceNotFoundException("List with ID $listId not found.")
@@ -49,10 +51,16 @@ class ListItemService(
             ?: throw ResourceNotFoundException("ListItem with id $id not found")
         val potentialNewList = listRepository.findByIdOrNull(listItem.listId)
             ?: throw ResourceNotFoundException("List with ID ${listItem.listId} not found.")
+        val product = productService.scan(EAN(listItem.productEan))
+            ?: throw ResourceNotFoundException("Product with EAN ${listItem.productEan} not found.")
         val updatedItem =
             existingItem.copy(
                 expirationDate = listItem.expirationDate,
-                product = existingItem.product,
+                productEan = product.ean.value,
+                productName = product.name,
+                productBrands = product.brands,
+                productImageUrl = product.imageUrl,
+                productThumbUrl = product.thumbUrl,
                 list = potentialNewList
             )
         return repository.save(updatedItem).let { ListItem.fromEntity(it) }

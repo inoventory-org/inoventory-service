@@ -5,11 +5,15 @@ import com.inovex.inoventory.list.InventoryListRepository
 import com.inovex.inoventory.list.entity.InventoryListEntity
 import com.inovex.inoventory.list.item.dto.ListItem
 import com.inovex.inoventory.list.item.entity.ListItemEntity
-import com.inovex.inoventory.product.ProductRepository
-import com.inovex.inoventory.product.entity.ProductEntity
-import com.inovex.inoventory.product.entity.SourceEntity
-import com.inovex.inoventory.product.tag.entity.TagEntity
+import com.inovex.inoventory.ean.api.EanApiConnector
+import com.inovex.inoventory.product.ProductCacheProperties
+import com.inovex.inoventory.product.ProductMemoryCache
+import com.inovex.inoventory.product.ProductService
+import com.inovex.inoventory.product.dto.EAN
+import com.inovex.inoventory.product.dto.Product
+import com.inovex.inoventory.product.tag.dto.Tag
 import com.inovex.inoventory.user.entity.UserEntity
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -20,98 +24,132 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 
-
 class ListItemServiceTest {
 
     private val repository = mockk<ListItemRepository>()
-    private val productRepository = mockk<ProductRepository>()
+    private val apiConnector = mockk<EanApiConnector>()
+    private val productService = ProductService(apiConnector, ProductMemoryCache(ProductCacheProperties()))
     private val listRepository = mockk<InventoryListRepository>()
-    private val service = ListItemService(repository, productRepository, listRepository)
+    private val service = ListItemService(repository, productService, listRepository)
 
     @Test
     fun `getAll should return a list of ListItemDTOs`() {
-        // Given
-        val product =
-            ProductEntity(name = "product", brands = "Some-Brand", ean = "1234567890", source = SourceEntity.USER)
-        val product2 = ProductEntity(name = "product2", ean = "9876543210", source = SourceEntity.USER)
-
         val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem1 =
-            ListItemEntity(id = 1L, expirationDate = LocalDate.of(2022, 1, 2), product = product, list = list)
-        val listItem2 =
-            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product, list = list)
-        val listItem3 =
-            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product2, list = list)
+        val listItem1 = ListItemEntity(
+            id = 1L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = "1234567890",
+            productName = "product",
+            productBrands = "Some-Brand",
+            list = list
+        )
+        val listItem2 = ListItemEntity(
+            id = 2L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = "1234567890",
+            productName = "product",
+            productBrands = "Some-Brand",
+            list = list
+        )
+        val listItem3 = ListItemEntity(
+            id = 3L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = "9876543210",
+            productName = "product2",
+            list = list
+        )
 
         every { repository.findAllByListId(0L) } returns listOf(listItem1, listItem2, listItem3)
 
-        // When
         val result = service.getAll(0L)
 
-        // Then
         assertEquals(2, result.size)
 
-        val firstItemGroup = result[product.ean]!!
-        val secondItemGroup = result[product2.ean]!!
+        val firstItemGroup = result[listItem1.productEan]!!
+        val secondItemGroup = result[listItem3.productEan]!!
 
         assertEquals(2, firstItemGroup.size)
         assertEquals(1, secondItemGroup.size)
 
-        assertEquals(listItem1.product.ean, firstItemGroup[0].productEan)
+        assertEquals(listItem1.productEan, firstItemGroup[0].productEan)
         assertEquals(listItem1.list.id, firstItemGroup[0].listId)
         assertEquals(listItem1.expirationDate, firstItemGroup[0].expirationDate)
-        var expectedDisplayName = "${listItem1.product.brands ?: ""} ${listItem1.product.name}".trim()
+        var expectedDisplayName = "${listItem1.productBrands ?: ""} ${listItem1.productName}".trim()
         assertEquals(expectedDisplayName, firstItemGroup[0].displayName)
 
-        assertEquals(listItem2.product.ean, firstItemGroup[1].productEan)
+        assertEquals(listItem2.productEan, firstItemGroup[1].productEan)
         assertEquals(listItem2.list.id, firstItemGroup[1].listId)
         assertEquals(listItem2.expirationDate, firstItemGroup[1].expirationDate)
-        expectedDisplayName = "${listItem2.product.brands ?: ""} ${listItem2.product.name}".trim()
+        expectedDisplayName = "${listItem2.productBrands ?: ""} ${listItem2.productName}".trim()
         assertEquals(expectedDisplayName, firstItemGroup[1].displayName)
 
-        assertEquals(listItem3.product.ean, secondItemGroup[0].productEan)
+        assertEquals(listItem3.productEan, secondItemGroup[0].productEan)
         assertEquals(listItem3.list.id, secondItemGroup[0].listId)
         assertEquals(listItem3.expirationDate, secondItemGroup[0].expirationDate)
-        expectedDisplayName = "${listItem3.product.brands ?: ""} ${listItem3.product.name}".trim()
+        expectedDisplayName = "${listItem3.productBrands ?: ""} ${listItem3.productName}".trim()
         assertEquals(expectedDisplayName, secondItemGroup[0].displayName)
     }
 
     @Test
     fun `getAllGroupBy should return a grouped map of ItemWrappers grouped by category`() {
-        // Given
         val category1Name = "breakfast"
         val category2Name = "snacks"
-        val product =
-            ProductEntity(name = "breakfast product", brands = "Some-Brand", ean = "1234567890", source = SourceEntity.USER, tags = listOf(
-                TagEntity(1, category1Name)
-            ))
-        val product2 = ProductEntity(name = "snack1", ean = "9876543210", source = SourceEntity.USER, tags = listOf(
-            TagEntity(2, category2Name)
-        ))
-        val product3 = ProductEntity(name = "snack2", ean = "9876543299", source = SourceEntity.USER, tags = listOf(
-            TagEntity(2, category2Name)
-        ))
-
+        val product1 = Product(
+            ean = EAN("1234567890"),
+            name = "breakfast product",
+            brands = "Some-Brand",
+            tags = listOf(Tag(category1Name))
+        )
+        val product2 = Product(
+            ean = EAN("9876543210"),
+            name = "snack1",
+            tags = listOf(Tag(category2Name))
+        )
+        val product3 = Product(
+            ean = EAN("9876543299"),
+            name = "snack2",
+            tags = listOf(Tag(category2Name))
+        )
 
         val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem1 =
-            ListItemEntity(id = 1L, expirationDate = LocalDate.of(2022, 1, 2), product = product, list = list)
-        val listItem2 =
-            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product, list = list)
-        val listItem3 =
-            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product2, list = list)
-        val listItem4 =
-            ListItemEntity(id = 2L, expirationDate = LocalDate.of(2022, 1, 2), product = product3, list = list)
+        val listItem1 = ListItemEntity(
+            id = 1L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = product1.ean.value,
+            productName = product1.name,
+            productBrands = product1.brands,
+            list = list
+        )
+        val listItem2 = ListItemEntity(
+            id = 2L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = product1.ean.value,
+            productName = product1.name,
+            productBrands = product1.brands,
+            list = list
+        )
+        val listItem3 = ListItemEntity(
+            id = 3L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = product2.ean.value,
+            productName = product2.name,
+            list = list
+        )
+        val listItem4 = ListItemEntity(
+            id = 4L,
+            expirationDate = LocalDate.of(2022, 1, 2),
+            productEan = product3.ean.value,
+            productName = product3.name,
+            list = list
+        )
 
         every { repository.findAllByListId(0L) } returns listOf(listItem1, listItem2, listItem3, listItem4)
-        every { productRepository.findByEan(product.ean) } returns product
-        every { productRepository.findByEan(product2.ean) } returns product2
-        every { productRepository.findByEan(product3.ean) } returns product3
+        coEvery { apiConnector.findByEan(EAN(product1.ean.value)) } returns product1
+        coEvery { apiConnector.findByEan(EAN(product2.ean.value)) } returns product2
+        coEvery { apiConnector.findByEan(EAN(product3.ean.value)) } returns product3
 
-        // When
         val result = service.getAllGroupedBy(0L, "category")
 
-        // Then
         assertEquals(2, result.size)
 
         val firstItemGroup = result[category1Name]!!
@@ -126,74 +164,66 @@ class ListItemServiceTest {
         assertEquals(2, firstItemGroup.first().items?.size)
         assertEquals(1, secondItemGroup[0].items?.size)
         assertEquals(1, secondItemGroup[1].items?.size)
-
     }
 
     @Test
     fun `findOrNull should return a ListItemDTO for the given id`() {
-        // Given
         val id = 1L
-        val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
         val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem =
-            ListItemEntity(id = id, expirationDate = LocalDate.of(2022, 1, 1), product = product, list = list)
+        val listItem = ListItemEntity(
+            id = id,
+            expirationDate = LocalDate.of(2022, 1, 1),
+            productEan = "1234567890",
+            productName = "product",
+            list = list
+        )
         every { repository.findByIdOrNull(id) } returns listItem
 
-        // When
         val result = service.findOrNull(id, 0L)
 
-        // Then
         assertEquals(id, result?.id)
         assertEquals(LocalDate.of(2022, 1, 1), result?.expirationDate)
-        assertEquals(product.ean, result?.productEan)
+        assertEquals(listItem.productEan, result?.productEan)
     }
 
     @Test
     fun `findOrNull should return null if no ListItem is found`() {
-        // Given
         val id = 1L
         every { repository.findByIdOrNull(id) } returns null
 
-        // When
         val result = service.findOrNull(id, 0L)
 
-        // Then
         assertNull(result)
     }
 
     @Test
     fun `create should create a new ListItem`() {
-        // Given
-        val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
+        val product = Product(ean = EAN("1234567890"), name = "product")
         val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
         val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022, 1, 1), listId = 0)
-        every { productRepository.findByEan(listItem.productEan) } returns product
+        coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns product
         every { listRepository.findByIdOrNull(listItem.listId) } returns list
         every { repository.save(any()) } returns ListItemEntity(
             id = 1L,
             expirationDate = LocalDate.of(2022, 1, 1),
-            product = product,
+            productEan = product.ean.value,
+            productName = product.name,
             list = list
         )
 
-        // When
         val result = service.create(0L, listItem)
 
-        // Then
         assertEquals(1L, result.id)
         assertEquals(LocalDate.of(2022, 1, 1), result.expirationDate)
-        assertEquals(product.ean, result.productEan)
+        assertEquals(product.ean.value, result.productEan)
         assertEquals(list.id, result.listId)
-
     }
 
     @Test
     fun `create should throw a ResourceNotFoundException if the product is not found`() {
-        // Given
         val listItem = ListItem(expirationDate = LocalDate.of(2022, 1, 1), productEan = "1234567890", listId = 0L)
-        every { productRepository.findByEan(listItem.productEan) } returns null
+        coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns null
 
-        // When & Then
         assertThrows<ResourceNotFoundException> {
             service.create(0L, listItem)
         }
@@ -201,35 +231,36 @@ class ListItemServiceTest {
 
     @Test
     fun `update should update an existing ListItem`() {
-        // Given
         val id = 1L
-        val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
+        val product = Product(ean = EAN("1234567890"), name = "product")
         val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022,1,1), listId = 0L)
-        val existingItem =
-            ListItemEntity(id = id, expirationDate = LocalDate.of(2022, 1, 1), product = product, list = list)
+        val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022, 1, 1), listId = 0L)
+        val existingItem = ListItemEntity(
+            id = id,
+            expirationDate = LocalDate.of(2022, 1, 1),
+            productEan = product.ean.value,
+            productName = product.name,
+            list = list
+        )
         every { listRepository.findByIdOrNull(list.id) } returns list
         every { repository.findByIdOrNull(id) } returns existingItem
+        coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns product
         every { repository.save(any()) } returns existingItem.copy(expirationDate = listItem.expirationDate)
 
-        // When
         val result = service.update(id, 0L, listItem)
 
-        // Then
         assertEquals(id, result.id)
-        assertEquals(LocalDate.of(2022,1,1), result.expirationDate)
-        assertEquals(product.ean, result.productEan)
+        assertEquals(LocalDate.of(2022, 1, 1), result.expirationDate)
+        assertEquals(product.ean.value, result.productEan)
         assertEquals(list.id, result.listId)
     }
 
     @Test
     fun `update should throw a ResourceNotFoundException if the ListItem is not found`() {
-        // Given
         val id = 1L
-        val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022,1,1), listId = 0L)
+        val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022, 1, 1), listId = 0L)
         every { repository.findByIdOrNull(id) } returns null
 
-        // When & Then
         assertThrows<ResourceNotFoundException> {
             service.update(id, 0L, listItem)
         }
@@ -237,44 +268,33 @@ class ListItemServiceTest {
 
     @Test
     fun `delete should delete the ListItem with the given id and return the deleted item`() {
-        // Given
         val id = 1L
-    val product = ProductEntity(name = "product", ean = "1234567890", source = SourceEntity.USER)
         val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem = ListItem(
-            productEan = "1234567890",
+        val existingItem = ListItemEntity(
+            id = id,
             expirationDate = LocalDate.of(2022, 1, 1),
-            listId = 0L,
-            displayName = "product",
-            id = id
+            productEan = "1234567890",
+            productName = "product",
+            list = list
         )
-        val existingItem =
-            ListItemEntity(id = id, expirationDate = LocalDate.of(2022, 1, 1), product = product, list = list)
-        every { listRepository.findByIdOrNull(list.id) } returns list
         every { repository.findByIdOrNull(id) } returns existingItem
         every { repository.deleteById(id) } returns Unit
 
-        // When
         val actualItem = service.delete(id)
 
-        // Then
         verify { repository.deleteById(id) }
-        assertEquals(listItem, actualItem)
+        assertEquals(ListItem.fromEntity(existingItem), actualItem)
     }
 
     @Test
     fun `delete should silently ignore the request and return null when no item with requested Id is found`() {
-        // Given
         val id = 1L
         every { repository.findByIdOrNull(id) } returns null
         every { repository.deleteById(id) } returns Unit
 
-        // When
         val actualItem = service.delete(id)
 
-        // Then
         verify { repository.deleteById(id) }
         assertEquals(null, actualItem)
     }
-
 }
