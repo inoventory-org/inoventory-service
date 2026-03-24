@@ -5,6 +5,7 @@ import com.inovex.inoventory.list.InventoryListRepository
 import com.inovex.inoventory.list.entity.InventoryListEntity
 import com.inovex.inoventory.list.item.dto.ListItem
 import com.inovex.inoventory.list.item.entity.ListItemEntity
+import com.inovex.inoventory.config.DbAuthContext
 import com.inovex.inoventory.ean.api.EanApiConnector
 import com.inovex.inoventory.product.ProductCacheProperties
 import com.inovex.inoventory.product.ProductMemoryCache
@@ -30,7 +31,8 @@ class ListItemServiceTest {
     private val apiConnector = mockk<EanApiConnector>()
     private val productService = ProductService(apiConnector, ProductMemoryCache(ProductCacheProperties()))
     private val listRepository = mockk<InventoryListRepository>()
-    private val service = ListItemService(repository, productService, listRepository)
+    private val dbAuthContext = mockk<DbAuthContext>(relaxed = true)
+    private val service = ListItemService(repository, productService, listRepository, dbAuthContext)
 
     @Test
     fun `getAll should return a list of ListItemDTOs`() {

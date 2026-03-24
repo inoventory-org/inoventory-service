@@ -9,6 +9,7 @@ import com.inovex.inoventory.list.permission.entity.AccessRight
 import com.inovex.inoventory.user.entity.UserEntity
 import com.inovex.inoventory.user.dto.UserDto
 import com.inovex.inoventory.user.service.UserService
+import com.inovex.inoventory.config.DbAuthContext
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -16,12 +17,15 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 
+
 class InventoryListServiceTests {
 
     private val inventoryListRepository = mockk<InventoryListRepository>()
     private val userService = mockk<UserService>()
     private val permissionService = mockk<PermissionService>()
-    private val inventoryListService = InventoryListService(inventoryListRepository, userService, permissionService)
+    private val dbAuthContext = mockk<DbAuthContext>(relaxed = true)
+    private val inventoryListService =
+        InventoryListService(inventoryListRepository, userService, permissionService, dbAuthContext)
 
     @Test
     fun `getAll should return all lists from the repository`() {
@@ -129,7 +133,7 @@ class InventoryListServiceTests {
         val list = InventoryList(id = id, name = "List 1", UserDto.fromEntity(user))
         val localInventoryListRepository = mockk<InventoryListRepository>(relaxed = true)
         val localInventoryListService =
-            InventoryListService(localInventoryListRepository, userService, permissionService)
+            InventoryListService(localInventoryListRepository, userService, permissionService, dbAuthContext)
 
         every { localInventoryListRepository.deleteById(id) } returns Unit
         every { localInventoryListRepository.findByIdOrNull(id) } returns list.toEntity()
