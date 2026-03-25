@@ -3,9 +3,6 @@ import com.inovex.inoventory.InoventoryApplication
 import com.inovex.inoventory.list.InventoryListService
 import com.inovex.inoventory.list.dto.InventoryList
 import com.inovex.inoventory.mock.TestConfig
-import com.inovex.inoventory.user.UserRepository
-import com.inovex.inoventory.user.dto.UserDto
-import com.inovex.inoventory.user.entity.UserEntity
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -35,22 +32,17 @@ class InventoryListControllerIntegrationTests {
     @Autowired
     lateinit var inventoryListService: InventoryListService
 
-    @Autowired
-    lateinit var userRepository: UserRepository
-
     @AfterEach
     fun cleanUsersTable() {
         inventoryListService.getAll().forEach { inventoryListService.delete(it.id!!) }
-        userRepository.deleteAll()
     }
 
     @Test
     fun `GET - getAll should return all inventory lists`() {
         // Given
-        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
         val expectedInventoryLists = listOf(
-            InventoryList(name = "Grocery List", user = user),
-            InventoryList(name = "Household Items", user = user)
+            InventoryList(name = "Grocery List"),
+            InventoryList(name = "Household Items")
         )
         expectedInventoryLists.forEach { inventoryListService.create(it) }
 
@@ -67,10 +59,9 @@ class InventoryListControllerIntegrationTests {
     @Test
     fun `GET {ID} - getting list by id should return the list with the given id`() {
         // Given
-        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
         val expectedInventoryLists = listOf(
-            InventoryList(name = "Grocery List", user = user),
-            InventoryList(name = "Household Items", user = user)
+            InventoryList(name = "Grocery List"),
+            InventoryList(name = "Household Items")
         )
 
         expectedInventoryLists.forEach {
@@ -90,8 +81,7 @@ class InventoryListControllerIntegrationTests {
     @Test
     fun `GET {ID} 404 - getting list by non existing id should return status 404`() {
         // Given
-        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
-        val list = InventoryList(id = 1L, name = "Grocery List", user = user)
+        val list = InventoryList(id = 1L, name = "Grocery List")
 
 
         // When
@@ -104,8 +94,7 @@ class InventoryListControllerIntegrationTests {
     @Test
     fun `POST - create a new list works and returns created list`() {
         // Given
-        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
-        val toCreate = InventoryList(id = 1L, name = "Grocery List", user = user)
+        val toCreate = InventoryList(id = 1L, name = "Grocery List")
 
         // When
         val result = mockMvc.perform(
@@ -123,9 +112,8 @@ class InventoryListControllerIntegrationTests {
     @Test
     fun `DELETE - delete a list`() {
         // Given
-        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
         assertTrue(inventoryListService.getAll().isEmpty())
-        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List", user = user))
+        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List"))
         assertTrue(inventoryListService.getAll().isNotEmpty())
 
         // When
@@ -141,8 +129,7 @@ class InventoryListControllerIntegrationTests {
     @Test
     fun `PUT - updates an existing list`() {
         // Given
-        val user = UserDto.fromEntity(userRepository.save(UserEntity(userName = "luke.skywalker")))
-        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List", user = user))
+        val existingList = inventoryListService.create(InventoryList(id = 1L, name = "Grocery List"))
 
 
         // When

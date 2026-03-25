@@ -3,46 +3,36 @@ package com.inovex.inoventory.product
 import com.inovex.inoventory.ean.api.EanApiConnector
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
-import com.inovex.inoventory.product.entity.SourceEntity
-import com.inovex.inoventory.product.search.ProductSpecification
 import com.inovex.inoventory.product.search.SearchCriteria
 import kotlinx.coroutines.runBlocking
-import org.springframework.data.jpa.domain.Specification
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 @Service
-class ProductService(private val repository: ProductRepository, private val apiConnector: EanApiConnector) {
-
-    @Scheduled(cron = "0 0 0 * * *")
-    private fun updateProductCache() =
-        repository.findByCachedTimestampBefore(Instant.now().minus(1, ChronoUnit.DAYS))
-            .forEach { findAndCacheApiProduct(EAN(it.ean)) }
+class ProductService(
+    private val apiConnector: EanApiConnector,
+    private val cache: ProductMemoryCache
+) {
 
     fun findAll(searchCriteria: List<SearchCriteria> = listOf()): List<Product> {
-        val specification = Specification.allOf(searchCriteria.map { ProductSpecification(it) })
-        val localResults = repository.findAll(specification).map { Product.fromEntity(it) }
-        if (localResults.any())
-            return localResults
-
-        return findAndCacheApiProducts(searchCriteria)
-    }
-
-    fun scan(ean: EAN, fresh: Boolean = false) : Product? {
-        if (fresh) {
-            return findAndCacheApiProduct(ean)
+        if (searchCriteria.isEmpty()) {
+            return listOf()
         }
-        return repository.findByEan(ean.value)?.let { Product.fromEntity(it) } ?: findAndCacheApiProduct(ean)
+        val results = runBlocking { apiConnector.search(searchCriteria) }
+        cache.putAll(results)
+        return results
     }
 
-    fun upsert(product: Product, source: SourceEntity): Product =
-        Product.fromEntity(repository.save(product.toEntity(source, Instant.now())))
+    fun scan(ean: EAN, fresh: Boolean = false): Product? {
+        if (!fresh) {
+            cache.get(ean.value)?.let { return it }
+        }
+        val product = runBlocking { apiConnector.findByEan(ean) }
+        product?.let { cache.put(it) }
+        return product
+    }
 
-    private fun findAndCacheApiProduct(ean: EAN) =
-        runBlocking { apiConnector.findByEan(ean) }?.let { upsert(it, SourceEntity.API) }
-
-    private fun findAndCacheApiProducts(searchCriteria: List<SearchCriteria>) =
-        runBlocking { apiConnector.search(searchCriteria) }.map { upsert(it, SourceEntity.API) }
+    fun cacheProduct(product: Product): Product {
+        cache.put(product)
+        return product
+    }
 }

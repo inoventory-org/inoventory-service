@@ -48,12 +48,14 @@ internal class ProductControllerIntegrationTest : Specification() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v1/products")
+                .param("ean", expected.first().ean.value)
+                .param("fresh", "false")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk).andReturn()
 
-        val actual = objectMapper.readValue(result.response.contentAsString, Array<Product>::class.java).toList()
+        val actual = objectMapper.readValue(result.response.contentAsString, Product::class.java)
 
-        assertEquals(expected, actual)
+        assertEquals(expected.first(), actual)
     }
 }

@@ -8,8 +8,14 @@ Api for **Inoventory** (not a prepper app!) using Spring Boot 3 + Kotlin.
 This project requires Java 22. Use jenv or sdkman to configure your local environment.
 
 ## Running locally
-1. Start PostgresDB   
-`docker compose -f docker-compose.local.yml up -d`
+1. Create `.env` (or `.env.local`) in the service root:
+   ```properties
+   DB_URL=jdbc:postgresql://db.tncuiwvsvyixivsfhpqv.supabase.co:5432/postgres?sslmode=require
+   DB_USERNAME=postgres
+   DB_PASSWORD=your_password
+   SUPABASE_PROJECT_BASE_URL=https://tncuiwvsvyixivsfhpqv.supabase.co
+   SUPABASE_JWT_AUDIENCE=authenticated
+   ```
 2. Run with Gradle  
 `./gradlew bootRun --args='--spring.profiles.active=local'`
 
@@ -26,10 +32,11 @@ Connect to the inoventory database with the following configuration:
 
 
 ## Auth
-Keycloak is used for Authentication and Authorization. You need a user with role *inoventory-user*.
-Every call must contain a valid Bearer token issued by Keycloak.
+Supabase is used for Authentication and Authorization. Every call must contain a valid Bearer token issued by Supabase.
+The service does not persist its own users table; use the Supabase `auth.users` identity and store `user_id` (UUID) on domain rows.
+
+If DB connections suddenly fail with connection refused or metadata errors, check whether Supabase has temporarily banned your IP for suspicious activity.
+https://supabase.com/dashboard/project/tncuiwvsvyixivsfhpqv/database/settings
 
 ## Links
 Service is running at: http://10.100.255.76:8080/  (http://inoventory.railabouni.fra.ics.inovex.io/)
-Keycloak is running at http://10.100.255.76:8081/
-

@@ -3,28 +3,21 @@ package com.inovex.inoventory.product
 import com.inovex.inoventory.ean.api.EanApiConnector
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
-import com.inovex.inoventory.product.entity.ProductEntity
-import com.inovex.inoventory.product.entity.SourceEntity
-import com.inovex.inoventory.product.tag.entity.TagEntity
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.springframework.data.jpa.domain.Specification
+import java.time.Duration
 
 class ProductServiceTest {
 
-    private val productRepository: ProductRepository = mockk()
     private val apiConnector: EanApiConnector = mockk()
-    private val productService = ProductService(productRepository, apiConnector)
+    private val cache = ProductMemoryCache(ProductCacheProperties(Duration.ofMinutes(5), 10))
+    private val productService = ProductService(apiConnector, cache)
 
     @Test
     fun `findAll() works with empty repository`() {
         // given
-        // no products were added
-        every { productRepository.findAll(any<Specification<ProductEntity>>()) } returns emptyList()
-        coEvery { apiConnector.search(any()) } returns emptyList()
-
         // when
         val products = productService.findAll()
 
@@ -33,13 +26,12 @@ class ProductServiceTest {
     }
 
     @Test
-    fun `upsert() works`() {
+    fun `cacheProduct() works`() {
         // given
         val product = Product(name = "Test Product", ean = EAN("12345678"))
-        every { productRepository.save(any()) } returnsArgument 0
 
         // when
-        val newProduct = productService.upsert(product, SourceEntity.USER)
+        val newProduct = productService.cacheProduct(product)
 
         // then
         assertEquals(newProduct.name, product.name)
@@ -52,14 +44,13 @@ class ProductServiceTest {
         // given
         val ean = EAN("12345678")
         val cachedProduct = createMockProduct(ean)
-
-        every { productRepository.findByEan(ean.value) } returns cachedProduct
+        productService.cacheProduct(cachedProduct)
 
         // when
         val actual = productService.scan(ean)
 
         // then
-        assertEquals(Product.fromEntity(cachedProduct), actual)
+        assertEquals(cachedProduct, actual)
     }
 
 
@@ -68,18 +59,14 @@ class ProductServiceTest {
         // given
         val ean = EAN("12345678")
         val newProduct = createMockProduct(ean)
-        val newProductDto = Product.fromEntity(newProduct)
-
-        every { productRepository.findByEan(ean.value) } returns null
-        every { productRepository.save(match { it.ean == newProduct.ean }) } returns newProduct
-        coEvery { apiConnector.findByEan(ean) } returns newProductDto
+        coEvery { apiConnector.findByEan(ean) } returns newProduct
 
         // when
         val actual = productService.scan(ean)
 
         // then
-        verify(exactly = 1) { productRepository.save(match { it.ean == newProduct.ean }) }
-        assertEquals(newProductDto, actual)
+        assertEquals(newProduct, actual)
+        coVerify(exactly = 1) { apiConnector.findByEan(ean) }
     }
 
     @Test
@@ -87,31 +74,23 @@ class ProductServiceTest {
         // given
         val ean = EAN("12345678")
         val newProduct = createMockProduct(ean)
-        val newProductDto = Product.fromEntity(newProduct)
-
-        every { productRepository.findByEan(ean.value) } returns null
-        every { productRepository.save(match { it.ean == newProduct.ean }) } returns newProduct
-        coEvery { apiConnector.findByEan(ean) } returns newProductDto
+        coEvery { apiConnector.findByEan(ean) } returns newProduct
 
         // when
         productService.scan(ean) // first call should cache product
 
-        every { productRepository.findByEan(ean.value) } returns newProduct
         productService.scan(ean) // second call should get cached product
         val actual = productService.scan(ean, true) // by setting fresh=true, product should be fetched and cached again
 
 
         // then
-        verify(exactly = 2) { productRepository.save(match { it.ean == newProduct.ean }) }
         coVerify(exactly = 2) { apiConnector.findByEan(ean)}
-        assertEquals(newProductDto, actual)
+        assertEquals(newProduct, actual)
     }
 
 
-    private fun createMockProduct(ean: EAN) = ProductEntity(
-        ean = ean.value,
-        name = "I'm cached!",
-        source = SourceEntity.API,
-        tags = listOf(TagEntity(1, "en:breakfast"))
+    private fun createMockProduct(ean: EAN) = Product(
+        ean = ean,
+        name = "I'm cached!"
     )
 }
