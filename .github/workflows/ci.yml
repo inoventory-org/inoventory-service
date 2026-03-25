@@ -60,51 +60,51 @@ jobs:
         run: |
             docker push ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }} --all-tags
         
-  deploy:
-    needs: publish
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout project sources
-        uses: actions/checkout@v4
-
-
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Copy docker-compose file to remote server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP_PUBLIC }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml"
-          target: "~/app"
-
-      - name: Deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP_PUBLIC }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
-          script: |
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            export PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
-            export KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
-            export APP_TAG=${{ github.sha }}
-            
-            mkdir -p ~/app
-            echo ${{ secrets.GITHUB_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-            docker-compose -f ~/app/docker-compose.yml up -d
-            docker logout ${{ env.REGISTRY }} 
-
-      - name: Cleanup
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP_PUBLIC }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            docker logout ${{ env.REGISTRY }}
+#  deploy:
+#    needs: publish
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout project sources
+#        uses: actions/checkout@v4
+#
+#
+#      - uses: webfactory/ssh-agent@v0.9.0
+#        with:
+#          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+#
+#      - name: Copy docker-compose file to remote server
+#        uses: appleboy/scp-action@v0.1.7
+#        with:
+#          host: ${{ secrets.SERVER_IP_PUBLIC }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          source: "docker-compose.yml"
+#          target: "~/app"
+#
+#      - name: Deploy
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ secrets.SERVER_IP_PUBLIC }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script_stop: true
+#          script: |
+#            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+#            export PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
+#            export KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+#            export APP_TAG=${{ github.sha }}
+#
+#            mkdir -p ~/app
+#            echo ${{ secrets.GITHUB_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+#            docker-compose -f ~/app/docker-compose.yml up -d
+#            docker logout ${{ env.REGISTRY }}
+#
+#      - name: Cleanup
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ secrets.SERVER_IP_PUBLIC }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            docker logout ${{ env.REGISTRY }}
