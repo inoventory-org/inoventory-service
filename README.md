@@ -33,6 +33,7 @@ Connect to the inoventory database with the following configuration:
 
 ## Auth
 Supabase is used for Authentication and Authorization. Every call must contain a valid Bearer token issued by Supabase.
+The service does not persist its own users table; use the Supabase `auth.users` identity and store `user_id` (UUID) on domain rows.
 
 If DB connections suddenly fail with connection refused or metadata errors, check whether Supabase has temporarily banned your IP for suspicious activity.
 https://supabase.com/dashboard/project/tncuiwvsvyixivsfhpqv/database/settings

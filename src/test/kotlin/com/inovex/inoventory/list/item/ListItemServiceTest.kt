@@ -13,7 +13,6 @@ import com.inovex.inoventory.product.ProductService
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.tag.dto.Tag
-import com.inovex.inoventory.user.entity.UserEntity
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
+import java.util.UUID
 
 class ListItemServiceTest {
 
@@ -36,11 +36,11 @@ class ListItemServiceTest {
 
     @Test
     fun `getAll should return a list of ListItemDTOs`() {
-        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val list = InventoryListEntity(id = 0L, name = "myList", userId = UUID.randomUUID())
         val listItem1 = ListItemEntity(
             id = 1L,
             expirationDate = LocalDate.of(2022, 1, 2),
-            productEan = "1234567890",
+            productEan = "1234567890123",
             productName = "product",
             productBrands = "Some-Brand",
             list = list
@@ -48,7 +48,7 @@ class ListItemServiceTest {
         val listItem2 = ListItemEntity(
             id = 2L,
             expirationDate = LocalDate.of(2022, 1, 2),
-            productEan = "1234567890",
+            productEan = "1234567890123",
             productName = "product",
             productBrands = "Some-Brand",
             list = list
@@ -56,7 +56,7 @@ class ListItemServiceTest {
         val listItem3 = ListItemEntity(
             id = 3L,
             expirationDate = LocalDate.of(2022, 1, 2),
-            productEan = "9876543210",
+            productEan = "9876543210123",
             productName = "product2",
             list = list
         )
@@ -97,23 +97,23 @@ class ListItemServiceTest {
         val category1Name = "breakfast"
         val category2Name = "snacks"
         val product1 = Product(
-            ean = EAN("1234567890"),
+            ean = EAN("1234567890123"),
             name = "breakfast product",
             brands = "Some-Brand",
             tags = listOf(Tag(category1Name))
         )
         val product2 = Product(
-            ean = EAN("9876543210"),
+            ean = EAN("9876543210123"),
             name = "snack1",
             tags = listOf(Tag(category2Name))
         )
         val product3 = Product(
-            ean = EAN("9876543299"),
+            ean = EAN("9876543299123"),
             name = "snack2",
             tags = listOf(Tag(category2Name))
         )
 
-        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val list = InventoryListEntity(id = 0L, name = "myList", userId = UUID.randomUUID())
         val listItem1 = ListItemEntity(
             id = 1L,
             expirationDate = LocalDate.of(2022, 1, 2),
@@ -171,11 +171,11 @@ class ListItemServiceTest {
     @Test
     fun `findOrNull should return a ListItemDTO for the given id`() {
         val id = 1L
-        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val list = InventoryListEntity(id = 0L, name = "myList", userId = UUID.randomUUID())
         val listItem = ListItemEntity(
             id = id,
             expirationDate = LocalDate.of(2022, 1, 1),
-            productEan = "1234567890",
+            productEan = "1234567890123",
             productName = "product",
             list = list
         )
@@ -200,9 +200,9 @@ class ListItemServiceTest {
 
     @Test
     fun `create should create a new ListItem`() {
-        val product = Product(ean = EAN("1234567890"), name = "product")
-        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022, 1, 1), listId = 0)
+        val product = Product(ean = EAN("1234567890123"), name = "product")
+        val list = InventoryListEntity(id = 0L, name = "myList", userId = UUID.randomUUID())
+        val listItem = ListItem(productEan = "1234567890123", expirationDate = LocalDate.of(2022, 1, 1), listId = 0)
         coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns product
         every { listRepository.findByIdOrNull(listItem.listId) } returns list
         every { repository.save(any()) } returns ListItemEntity(
@@ -223,7 +223,7 @@ class ListItemServiceTest {
 
     @Test
     fun `create should throw a ResourceNotFoundException if the product is not found`() {
-        val listItem = ListItem(expirationDate = LocalDate.of(2022, 1, 1), productEan = "1234567890", listId = 0L)
+        val listItem = ListItem(expirationDate = LocalDate.of(2022, 1, 1), productEan = "1234567890123", listId = 0L)
         coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns null
 
         assertThrows<ResourceNotFoundException> {
@@ -234,9 +234,9 @@ class ListItemServiceTest {
     @Test
     fun `update should update an existing ListItem`() {
         val id = 1L
-        val product = Product(ean = EAN("1234567890"), name = "product")
-        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
-        val listItem = ListItem(productEan = "1234567890", expirationDate = LocalDate.of(2022, 1, 1), listId = 0L)
+        val product = Product(ean = EAN("1234567890123"), name = "product")
+        val list = InventoryListEntity(id = 0L, name = "myList", userId = UUID.randomUUID())
+        val listItem = ListItem(productEan = "1234567890123", expirationDate = LocalDate.of(2022, 1, 1), listId = 0L)
         val existingItem = ListItemEntity(
             id = id,
             expirationDate = LocalDate.of(2022, 1, 1),
@@ -271,11 +271,11 @@ class ListItemServiceTest {
     @Test
     fun `delete should delete the ListItem with the given id and return the deleted item`() {
         val id = 1L
-        val list = InventoryListEntity(id = 0L, name = "myList", user = UserEntity(userName = "luke.skywalker"))
+        val list = InventoryListEntity(id = 0L, name = "myList", userId = UUID.randomUUID())
         val existingItem = ListItemEntity(
             id = id,
             expirationDate = LocalDate.of(2022, 1, 1),
-            productEan = "1234567890",
+            productEan = "1234567890123",
             productName = "product",
             list = list
         )

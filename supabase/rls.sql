@@ -1,22 +1,6 @@
 -- Supabase RLS policies for inoventory-service tables
 -- Table names follow Hibernate defaults (entity class names in snake_case).
 
--- Users
-alter table public.users enable row level security;
-create policy "users_select_own"
-    on public.users
-    for select
-    using (id = auth.uid());
-create policy "users_insert_own"
-    on public.users
-    for insert
-    with check (id = auth.uid());
-create policy "users_update_own"
-    on public.users
-    for update
-    using (id = auth.uid())
-    with check (id = auth.uid());
-
 -- Inventory lists
 alter table public.inventory_list_entity enable row level security;
 create policy "lists_select_own"

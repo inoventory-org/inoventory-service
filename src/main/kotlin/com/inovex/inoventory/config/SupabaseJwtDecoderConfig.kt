@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 
 @Configuration
-@Profile("!local")
+@Profile("!local & !test")
 class SupabaseJwtDecoderConfig(
     @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}") private val issuer: String,
     @Value("\${supabase.jwt.audience:authenticated}") private val audience: String
