@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.serialization") version kotlinVersion
 }
 
-group = "com.inovex"
+group = "com.railabouni"
 version = "0.0.1-SNAPSHOT"
 
 java {
