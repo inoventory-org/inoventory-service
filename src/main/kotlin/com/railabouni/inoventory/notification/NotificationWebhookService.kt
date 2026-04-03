@@ -1,5 +1,9 @@
 package com.railabouni.inoventory.notification
 
+import com.google.firebase.messaging.AndroidConfig
+import com.google.firebase.messaging.AndroidNotification
+import com.google.firebase.messaging.ApnsConfig
+import com.google.firebase.messaging.Aps
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
@@ -33,7 +37,6 @@ class NotificationWebhookService(
             val inventoryList = listItems.first().list
             val userId = inventoryList.userId
             
-            // CRITICAL CHECK: Does this userId match exactly what's in your fcm_tokens table?
             val fcmToken = fcmTokenService.getToken(userId)
 
             if (fcmToken == null) {
@@ -48,6 +51,31 @@ class NotificationWebhookService(
                         Notification.builder()
                             .setTitle("Items Expiring Soon")
                             .setBody("You have ${listItems.size} item(s) expiring soon in: ${inventoryList.name}")
+                            .build()
+                    )
+                    // Android Specifics
+                    .setAndroidConfig(
+                        AndroidConfig.builder()
+                            .setPriority(AndroidConfig.Priority.HIGH) // Bypasses Doze mode
+                            .setNotification(
+                                AndroidNotification.builder()
+                                    .setSound("default")
+                                    .setClickAction("FLUTTER_NOTIFICATION_CLICK") // Required for some older versions
+                                    .setChannelId("expiring_items_channel") // MUST match your Flutter setup
+                                    .build()
+                            )
+                            .build()
+                    )
+                    // iOS Specifics
+                    .setApnsConfig(
+                        ApnsConfig.builder()
+                            .putAllHeaders(mapOf("apns-priority" to "10")) // Priority 10 is "Immediate"
+                            .setAps(
+                                Aps.builder()
+                                    .setSound("default")
+                                    .setThreadId("expiring_items")
+                                    .build()
+                            )
                             .build()
                     )
                     .putData("listId", listId.toString())
