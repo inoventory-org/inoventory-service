@@ -44,3 +44,4 @@ out/
 ### Local env ###
 .env
 .env.local
+firebase_fcm_creds.json
