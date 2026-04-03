@@ -1,6 +1,6 @@
-package com.inovex.inoventory.user.fcm
+package com.railabouni.inoventory.user.fcm
 
-import com.inovex.inoventory.user.service.CurrentUserService
+import com.railabouni.inoventory.user.service.CurrentUserService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

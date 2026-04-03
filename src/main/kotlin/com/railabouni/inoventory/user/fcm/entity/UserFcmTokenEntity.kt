@@ -1,4 +1,4 @@
-package com.inovex.inoventory.user.fcm.entity
+package com.railabouni.inoventory.user.fcm.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id

@@ -1,11 +1,11 @@
-package com.inovex.inoventory.notification
+package com.railabouni.inoventory.notification
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
-import com.inovex.inoventory.list.entity.InventoryListEntity
-import com.inovex.inoventory.list.item.ListItemRepository
-import com.inovex.inoventory.list.item.entity.ListItemEntity
-import com.inovex.inoventory.user.fcm.UserFcmTokenService
+import com.railabouni.inoventory.list.entity.InventoryListEntity
+import com.railabouni.inoventory.list.item.ListItemRepository
+import com.railabouni.inoventory.list.item.entity.ListItemEntity
+import com.railabouni.inoventory.user.fcm.UserFcmTokenService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

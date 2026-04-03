@@ -1,10 +1,10 @@
-package com.inovex.inoventory.notification
+package com.railabouni.inoventory.notification
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
-import com.inovex.inoventory.list.item.ListItemRepository
-import com.inovex.inoventory.user.fcm.UserFcmTokenService
+import com.railabouni.inoventory.list.item.ListItemRepository
+import com.railabouni.inoventory.user.fcm.UserFcmTokenService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate

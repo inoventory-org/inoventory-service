@@ -1,7 +1,7 @@
-package com.inovex.inoventory.user.fcm
+package com.railabouni.inoventory.user.fcm
 
-import com.inovex.inoventory.user.fcm.entity.UserFcmTokenEntity
-import com.inovex.inoventory.user.fcm.repository.UserFcmTokenRepository
+import com.railabouni.inoventory.user.fcm.entity.UserFcmTokenEntity
+import com.railabouni.inoventory.user.fcm.repository.UserFcmTokenRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID

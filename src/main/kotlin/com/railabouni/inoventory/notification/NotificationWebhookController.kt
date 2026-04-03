@@ -1,4 +1,4 @@
-package com.inovex.inoventory.notification
+package com.railabouni.inoventory.notification
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
