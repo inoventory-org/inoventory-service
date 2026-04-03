@@ -1,0 +1,17 @@
+name: Daily Expiration Check
+
+on:
+  schedule:
+    # This runs every day at 08:00 UTC (9:00 AM in Germany)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Manual trigger from the UI, e.g. for testing
+
+jobs:
+  trigger-webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit the Notification Endpoint
+        run: |
+          curl -X POST "${{ vars.BACKEND_URL }}/api/v1/jobs/check-expiring-items" \
+               -H "X-Cron-Secret: ${{ secrets.APP_CRON_SECRET }}" \
+               -H "Content-Type: application/json"
