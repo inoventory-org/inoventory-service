@@ -16,7 +16,8 @@ class SecurityConfig {
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .authorizeHttpRequests {
-                it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // swagger and docs are needed for health checks, jobs uses own authentication via API keys
+                it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/v1/jobs/**").permitAll()
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
