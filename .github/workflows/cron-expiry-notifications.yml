@@ -12,6 +12,6 @@ jobs:
     steps:
       - name: Hit the Notification Endpoint
         run: |
-          curl -X POST "${{ vars.BACKEND_URL }}/api/v1/jobs/check-expiring-items" \
+          curl -i -v -X POST "${{ vars.BACKEND_URL }}/api/v1/jobs/check-expiring-items" \
                -H "X-Cron-Secret: ${{ secrets.APP_CRON_SECRET }}" \
                -H "Content-Type: application/json"
