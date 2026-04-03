@@ -34,6 +34,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("com.google.firebase:firebase-admin:9.4.1")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-serialization-kotlinx-json")

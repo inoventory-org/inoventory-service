@@ -1,0 +1,66 @@
+version: '3'
+
+# This allows you to use a .env file automatically for all tasks
+dotenv: ['.env']
+
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+
+  # --- Execution Tasks ---
+
+  run:
+    desc: Run the application locally with the 'local' profile
+    aliases: [s, start]
+    cmds:
+      - ./gradlew bootRun --args='--spring.profiles.active=local'
+
+  build:
+    desc: Build the application JAR (runs tests and static checks)
+    cmds:
+      - ./gradlew build
+
+  assemble:
+    desc: Assemble the JAR file without running tests
+    cmds:
+      - ./gradlew assemble
+
+  clean:
+    desc: Clean the build directory
+    cmds:
+      - ./gradlew clean
+
+  # --- Quality & Testing Tasks ---
+
+  test:
+    desc: Run all unit and integration tests
+    aliases: [t]
+    cmds:
+      - ./gradlew test
+
+  check:
+    desc: The "Fast Check" - only verifies that code compiles and imports are valid
+    cmds:
+      - ./gradlew classes
+
+  lint:
+    desc: Run static analysis (Detekt/Ktlint) and code style checks
+    cmds:
+      - ./gradlew check -x test
+    # Note: 'check' usually runs tests, -x test skips them so this is purely static analysis
+
+  # --- Docker Tasks ---
+
+  docker-build:
+    desc: Build the Docker image locally
+    cmds:
+      - docker build -t inoventory-service:latest .
+
+  # --- Utility ---
+
+  refresh:
+    desc: Force Gradle to refresh dependencies
+    cmds:
+      - ./gradlew build --refresh-dependencies
