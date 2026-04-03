@@ -5,6 +5,7 @@ import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
 import com.railabouni.inoventory.list.item.ListItemRepository
 import com.railabouni.inoventory.user.fcm.UserFcmTokenService
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -14,50 +15,53 @@ class NotificationWebhookService(
     private val listItemRepository: ListItemRepository,
     private val fcmTokenService: UserFcmTokenService
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
     fun triggerExpirationNotifications(): Int {
-        val expirationThreshold = LocalDate.now().plusMonths(1)
-        val expiringItems = listItemRepository.findByExpirationDateBeforeAndNotificationSentFalse(expirationThreshold)
+        val threshold = LocalDate.now().plusMonths(1)
+        val items = listItemRepository.findByExpirationDateBeforeAndNotificationSentFalse(threshold)
         
-        if (expiringItems.isEmpty()) {
-            return 0
-        }
+        logger.info("Found ${items.size} items expiring before $threshold")
+        
+        if (items.isEmpty()) return 0
 
-        // Group items by List Id so we can send 1 notification per list
-        val itemsByList = expiringItems.groupBy { it.list }
-
+        val itemsByList = items.groupBy { it.list.id }
         var successCount = 0
 
-        itemsByList.forEach { (inventoryList, items) ->
+        itemsByList.forEach { (listId, listItems) ->
+            val inventoryList = listItems.first().list
             val userId = inventoryList.userId
+            
+            // CRITICAL CHECK: Does this userId match exactly what's in your fcm_tokens table?
             val fcmToken = fcmTokenService.getToken(userId)
 
-            if (fcmToken != null) {
-                // Prepare Firebase Message
-                val notificationTitle = "Items Expiring Soon"
-                val notificationBody = "You have ${items.size} item(s) expiring soon in list: ${inventoryList.name}"
+            if (fcmToken == null) {
+                logger.warn("Skipping List $listId: No FCM token found for User $userId")
+                return@forEach 
+            }
 
+            try {
                 val message = Message.builder()
                     .setToken(fcmToken)
                     .setNotification(
                         Notification.builder()
-                            .setTitle(notificationTitle)
-                            .setBody(notificationBody)
+                            .setTitle("Items Expiring Soon")
+                            .setBody("You have ${listItems.size} item(s) expiring soon in: ${inventoryList.name}")
                             .build()
                     )
-                    .putData("listId", inventoryList.id.toString())
+                    .putData("listId", listId.toString())
                     .build()
 
-                try {
-                    FirebaseMessaging.getInstance().send(message)
-                    // Update flags
-                    items.forEach { it.notificationSent = true }
-                    listItemRepository.saveAll(items)
-                    successCount++
-                } catch (e: Exception) {
-                    println("Failed to send FCM to user $userId: ${e.message}")
-                }
+                FirebaseMessaging.getInstance().send(message)
+                
+                listItems.forEach { it.notificationSent = true }
+                listItemRepository.saveAll(listItems)
+                
+                successCount++
+                logger.info("Notification sent successfully for List $listId to User $userId")
+            } catch (e: Exception) {
+                logger.error("Firebase failure for User $userId: ${e.message}")
             }
         }
         return successCount
