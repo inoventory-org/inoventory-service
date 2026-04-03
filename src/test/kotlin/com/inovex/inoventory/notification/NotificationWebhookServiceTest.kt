@@ -62,11 +62,11 @@ class NotificationWebhookServiceTest {
         assertEquals(1, successCount) // 1 list processed
         
         verify {
-            mockFirebaseMessaging.send(withArg { message ->
+            mockFirebaseMessaging.send(withArg<Message> { message ->
                 // It's tricky to assert on a final java class like Message cleanly without reflection
                 // We'll just verify send was called
             })
-            listItemRepository.saveAll(withArg { items ->
+            listItemRepository.saveAll(withArg<List<ListItemEntity>> { items ->
                 assertEquals(2, items.size)
                 assertEquals(true, items[0].notificationSent)
                 assertEquals(true, items[1].notificationSent)
