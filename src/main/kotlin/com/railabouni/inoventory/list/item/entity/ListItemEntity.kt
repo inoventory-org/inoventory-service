@@ -1,6 +1,7 @@
 package com.railabouni.inoventory.list.item.entity
 
 import com.railabouni.inoventory.list.entity.InventoryListEntity
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
