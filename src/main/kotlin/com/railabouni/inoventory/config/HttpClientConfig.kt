@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.springframework.context.annotation.Bean
@@ -26,6 +27,11 @@ class HttpClientConfig {
             }
             install(UserAgent) {
                 agent = "inoventory/0.0.1 (eilabouni.rudy@gmail.com)"
+            }
+            install(HttpTimeout) {
+                requestTimeoutMillis = 180_000
+                connectTimeoutMillis = 180_000
+                socketTimeoutMillis = 180_000
             }
         }
 }
