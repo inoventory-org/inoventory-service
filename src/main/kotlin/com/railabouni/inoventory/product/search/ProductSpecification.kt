@@ -1,7 +1,7 @@
 package com.railabouni.inoventory.product.search
 
-import com.inovex.inoventory.exceptions.InvalidSearchOperationException
-import com.inovex.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.exceptions.InvalidSearchOperationException
+import com.railabouni.inoventory.product.entity.ProductEntity
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate

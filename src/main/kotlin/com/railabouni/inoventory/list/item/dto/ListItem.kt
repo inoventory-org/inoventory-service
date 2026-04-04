@@ -1,8 +1,8 @@
 package com.railabouni.inoventory.list.item.dto
 
-import com.inovex.inoventory.list.entity.InventoryListEntity
-import com.inovex.inoventory.list.item.entity.ListItemEntity
-import com.inovex.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.list.entity.InventoryListEntity
+import com.railabouni.inoventory.list.item.entity.ListItemEntity
+import com.railabouni.inoventory.product.dto.Product
 import java.time.LocalDate
 
 data class ListItem(
@@ -15,10 +15,14 @@ data class ListItem(
     val listId: Long,
 ) {
 
-    fun toEntity(product: ProductEntity, list: InventoryListEntity) = ListItemEntity(
+    fun toEntity(product: Product, list: InventoryListEntity) = ListItemEntity(
         id = id,
         expirationDate = expirationDate,
-        product = product,
+        productEan = product.ean.value,
+        productName = product.name,
+        productBrands = product.brands,
+        productImageUrl = product.imageUrl,
+        productThumbUrl = product.thumbUrl,
         list = list
     )
 
@@ -26,10 +30,10 @@ data class ListItem(
         fun fromEntity(listItem: ListItemEntity) = ListItem(
             id = listItem.id,
             expirationDate = listItem.expirationDate,
-            displayName = listItem.product.brands?.let { "$it ${listItem.product.name}" } ?: listItem.product.name,
-            productEan = listItem.product.ean,
-            imageUrl = listItem.product.imageUrl,
-            thumbUrl = listItem.product.thumbUrl,
+            displayName = listItem.productBrands?.let { "$it ${listItem.productName}" } ?: listItem.productName,
+            productEan = listItem.productEan,
+            imageUrl = listItem.productImageUrl,
+            thumbUrl = listItem.productThumbUrl,
             listId = listItem.list.id!!
         )
     }

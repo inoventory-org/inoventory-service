@@ -1,6 +1,6 @@
 package com.railabouni.inoventory.product.tag.dto
 
-import com.inovex.inoventory.product.tag.entity.TagEntity
+import com.railabouni.inoventory.product.tag.entity.TagEntity
 
 data class Tag(val name: String) {
     fun toEntity() = TagEntity(

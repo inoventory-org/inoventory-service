@@ -1,6 +1,6 @@
 package com.railabouni.inoventory.list
 
-import com.inovex.inoventory.list.dto.InventoryList
+import com.railabouni.inoventory.list.dto.InventoryList
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 

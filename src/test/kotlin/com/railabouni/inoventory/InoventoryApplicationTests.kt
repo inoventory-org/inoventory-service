@@ -1,6 +1,6 @@
 package com.railabouni.inoventory
 
-import com.inovex.inoventory.mock.TestConfig
+import com.railabouni.inoventory.mock.TestConfig
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration

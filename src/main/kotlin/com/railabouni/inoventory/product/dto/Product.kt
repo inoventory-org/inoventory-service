@@ -1,8 +1,8 @@
 package com.railabouni.inoventory.product.dto
 
-import com.inovex.inoventory.product.entity.ProductEntity
-import com.inovex.inoventory.product.entity.SourceEntity
-import com.inovex.inoventory.product.tag.dto.Tag
+import com.railabouni.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.product.entity.SourceEntity
+import com.railabouni.inoventory.product.tag.dto.Tag
 import java.time.Instant
 
 data class Product(

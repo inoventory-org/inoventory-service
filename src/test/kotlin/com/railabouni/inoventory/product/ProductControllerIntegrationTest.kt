@@ -1,9 +1,9 @@
 package com.railabouni.inoventory.product
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.inovex.inoventory.mock.TestConfig
-import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.dto.Product
+import com.railabouni.inoventory.mock.TestConfig
+import com.railabouni.inoventory.product.dto.EAN
+import com.railabouni.inoventory.product.dto.Product
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,12 +48,14 @@ internal class ProductControllerIntegrationTest : Specification() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v1/products")
+                .param("ean", expected.first().ean.value)
+                .param("fresh", "false")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk).andReturn()
 
-        val actual = objectMapper.readValue(result.response.contentAsString, Array<Product>::class.java).toList()
+        val actual = objectMapper.readValue(result.response.contentAsString, Product::class.java)
 
-        assertEquals(expected, actual)
+        assertEquals(expected.first(), actual)
     }
 }

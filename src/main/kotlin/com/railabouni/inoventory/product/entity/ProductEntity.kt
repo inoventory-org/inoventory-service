@@ -1,7 +1,6 @@
 package com.railabouni.inoventory.product.entity
 
-import com.inovex.inoventory.list.item.entity.ListItemEntity
-import com.inovex.inoventory.product.tag.entity.TagEntity
+import com.railabouni.inoventory.product.tag.entity.TagEntity
 import jakarta.persistence.*
 import java.time.Instant
 
@@ -15,9 +14,6 @@ data class ProductEntity(
     val imageUrl: String? = null,
     val thumbUrl: String? = null,
     val cachedTimestamp: Instant? = null,
-
-    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL])
-    val listItems: List<ListItemEntity> = listOf(),
 
     @ManyToMany(cascade = [CascadeType.ALL, CascadeType.MERGE])
     val tags: List<TagEntity> = listOf(),

@@ -1,8 +1,12 @@
+<<<<<<<< HEAD:src/main/kotlin/com/railabouni/inoventory/openfoodfacts/api/dto/Product.kt
 package com.railabouni.inoventory.openfoodfacts.api.dto
+========
+package com.railabouni.inoventory.ean.api.openfoodfacts.dto
+>>>>>>>> main:src/main/kotlin/com/railabouni/inoventory/ean/api/openfoodfacts/dto/Product.kt
 
-import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.tag.dto.Tag
-import com.inovex.inoventory.product.dto.Product as ProductDto
+import com.railabouni.inoventory.product.dto.EAN
+import com.railabouni.inoventory.product.tag.dto.Tag
+import com.railabouni.inoventory.product.dto.Product as ProductDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

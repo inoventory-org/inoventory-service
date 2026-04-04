@@ -1,6 +1,6 @@
 package com.railabouni.inoventory.product.tag
 
-import com.inovex.inoventory.product.tag.entity.TagEntity
+import com.railabouni.inoventory.product.tag.entity.TagEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

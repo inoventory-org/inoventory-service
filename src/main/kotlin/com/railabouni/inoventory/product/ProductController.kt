@@ -1,9 +1,8 @@
 package com.railabouni.inoventory.product
 
-import com.inovex.inoventory.product.dto.EAN
-import com.inovex.inoventory.product.dto.Product
-import com.inovex.inoventory.product.entity.SourceEntity
-import com.inovex.inoventory.product.search.SearchString
+import com.railabouni.inoventory.product.dto.EAN
+import com.railabouni.inoventory.product.dto.Product
+import com.railabouni.inoventory.product.search.SearchString
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -24,5 +23,5 @@ class ProductController(private val service: ProductService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun post(@RequestBody product: Product) = service.upsert(product, SourceEntity.USER)
+    fun post(@RequestBody product: Product) = service.cacheProduct(product)
 }

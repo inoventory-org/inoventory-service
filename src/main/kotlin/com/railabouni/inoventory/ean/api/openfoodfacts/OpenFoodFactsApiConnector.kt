@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:src/main/kotlin/com/railabouni/inoventory/openfoodfacts/api/OpenFoodFactsApiConnector.kt
 package com.railabouni.inoventory.openfoodfacts.api
 
 import com.inovex.inoventory.openfoodfacts.EanConnector
@@ -10,6 +11,18 @@ import com.inovex.inoventory.product.dto.Product
 import com.inovex.inoventory.product.entity.ProductEntity
 import com.inovex.inoventory.product.search.SearchCriteria
 import com.inovex.inoventory.product.search.SearchOperator
+========
+package com.railabouni.inoventory.ean.api.openfoodfacts
+
+import com.railabouni.inoventory.ean.api.EanApiConnector
+import com.railabouni.inoventory.ean.api.openfoodfacts.dto.ProductResponse
+import com.railabouni.inoventory.ean.api.openfoodfacts.dto.SearchResponse
+import com.railabouni.inoventory.product.dto.EAN
+import com.railabouni.inoventory.product.dto.Product
+import com.railabouni.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.product.search.SearchCriteria
+import com.railabouni.inoventory.product.search.SearchOperator
+>>>>>>>> main:src/main/kotlin/com/railabouni/inoventory/ean/api/openfoodfacts/OpenFoodFactsApiConnector.kt
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

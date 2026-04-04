@@ -1,8 +1,16 @@
+<<<<<<<< HEAD:src/test/kotlin/com/railabouni/inoventory/openfoodfacts/api/OpenFoodFactsApiConnectorTest.kt
 package com.railabouni.inoventory.openfoodfacts.api
 
 import com.inovex.inoventory.openfoodfacts.api.dto.ProductResponse
 import com.inovex.inoventory.product.dto.EAN
 import com.inovex.inoventory.product.dto.Product
+========
+package com.railabouni.inoventory.ean.api.openfoodfacts
+
+import com.railabouni.inoventory.ean.api.openfoodfacts.dto.ProductResponse
+import com.railabouni.inoventory.product.dto.EAN
+import com.railabouni.inoventory.product.dto.Product
+>>>>>>>> main:src/test/kotlin/com/railabouni/inoventory/ean/api/openfoodfacts/OpenFoodFactsApiConnectorTest.kt
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.*
@@ -17,7 +25,11 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+<<<<<<<< HEAD:src/test/kotlin/com/railabouni/inoventory/openfoodfacts/api/OpenFoodFactsApiConnectorTest.kt
 import com.inovex.inoventory.openfoodfacts.api.dto.Product as OpenFoodFactsProduct
+========
+import com.railabouni.inoventory.ean.api.openfoodfacts.dto.Product as OpenFoodFactsProduct
+>>>>>>>> main:src/test/kotlin/com/railabouni/inoventory/ean/api/openfoodfacts/OpenFoodFactsApiConnectorTest.kt
 
 private const val DEFAULT_USER_AGENT = "inoventory/0.0.1 (eilabouni.rudy@gmail.com)"
 

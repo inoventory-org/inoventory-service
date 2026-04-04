@@ -1,7 +1,7 @@
 package com.railabouni.inoventory.list.item
 
-import com.inovex.inoventory.list.item.dto.ItemWrapper
-import com.inovex.inoventory.list.item.dto.ListItem
+import com.railabouni.inoventory.list.item.dto.ItemWrapper
+import com.railabouni.inoventory.list.item.dto.ListItem
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 

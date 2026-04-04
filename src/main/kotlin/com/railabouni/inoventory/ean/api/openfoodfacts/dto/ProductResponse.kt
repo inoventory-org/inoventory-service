@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:src/main/kotlin/com/railabouni/inoventory/openfoodfacts/api/dto/ProductResponse.kt
 package com.railabouni.inoventory.openfoodfacts.api.dto
+========
+package com.railabouni.inoventory.ean.api.openfoodfacts.dto
+>>>>>>>> main:src/main/kotlin/com/railabouni/inoventory/ean/api/openfoodfacts/dto/ProductResponse.kt
 
 import kotlinx.serialization.Serializable
 

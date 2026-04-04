@@ -1,7 +1,7 @@
 package com.railabouni.inoventory.list.permission.dto
 
-import com.inovex.inoventory.list.permission.entity.AccessRight
-import com.inovex.inoventory.list.permission.entity.PermissionEntity
+import com.railabouni.inoventory.list.permission.entity.AccessRight
+import com.railabouni.inoventory.list.permission.entity.PermissionEntity
 import java.util.*
 
 data class Permission(

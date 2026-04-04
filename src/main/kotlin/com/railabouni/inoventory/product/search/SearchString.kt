@@ -1,6 +1,6 @@
 package com.railabouni.inoventory.product.search
 
-import com.inovex.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.product.entity.ProductEntity
 
 @JvmInline
 value class SearchString(private val value: String) {

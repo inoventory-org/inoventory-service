@@ -1,6 +1,6 @@
 package com.railabouni.inoventory.product.tag
 
-import com.inovex.inoventory.product.tag.entity.TagEntity
+import com.railabouni.inoventory.product.tag.entity.TagEntity
 import org.springframework.stereotype.Service
 
 @Service

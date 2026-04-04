@@ -1,19 +1,18 @@
 package com.railabouni.inoventory.list.dto
 
-import com.inovex.inoventory.list.entity.InventoryListEntity
-import com.inovex.inoventory.user.dto.UserDto
+import com.railabouni.inoventory.list.entity.InventoryListEntity
+import java.util.UUID
 
 data class InventoryList(
     val id: Long? = -1,
     val name: String,
-    val user: UserDto? = null
+    val userId: UUID? = null
 ) {
-    fun toEntity(): InventoryListEntity {
-        require(user != null)
+    fun toEntity(userId: UUID): InventoryListEntity {
         return InventoryListEntity(
             id = id,
             name = name,
-            user = user.toEntity()
+            userId = userId
         )
     }
 
@@ -21,7 +20,7 @@ data class InventoryList(
         fun fromEntity(list: InventoryListEntity) = InventoryList(
             id = list.id,
             name = list.name,
-            user = UserDto.fromEntity(list.user)
+            userId = list.userId
         )
     }
 }

@@ -1,6 +1,6 @@
 package com.railabouni.inoventory.product
 
-import com.inovex.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.product.entity.ProductEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import java.time.Instant

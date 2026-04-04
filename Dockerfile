@@ -1,11 +1,45 @@
-#FROM gradle:7.5.1 AS build
-#COPY . /src
-#WORKDIR /src
-#RUN ./gradlew build -x test
+# ==========================================
+# Stage 1: Builder
+# ==========================================
+FROM eclipse-temurin:22-jdk-alpine AS builder
 
-FROM openjdk:22
-RUN mkdir /app
-COPY /build/libs/*.jar /app/
+# Set the working directory inside the container
 WORKDIR /app
-CMD ["ls", "."]
-ENTRYPOINT ["java", "-jar", "inoventory-0.0.1-SNAPSHOT.jar"]
+
+#  Copy the Gradle wrapper and settings first
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts settings.gradle.kts ./
+
+# Ensure the wrapper script is executable
+RUN chmod +x ./gradlew
+
+# Fetch dependencies to cache them in a dedicated Docker layer.
+RUN ./gradlew dependencies --no-daemon || true
+
+# Copy the rest of the source code
+COPY src src
+
+# Build the application (skipping tests to speed up the image build)
+RUN ./gradlew assemble -x test --no-daemon
+
+# ==========================================
+# Stage 2: Runtime
+# ==========================================
+# Use the JRE for a significantly smaller and more secure runtime image
+FROM eclipse-temurin:22-jre-alpine
+
+WORKDIR /app
+
+# Create a non-root user and group for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser:appgroup
+
+# Copy the compiled "fat jar" from the builder stage.
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+# Expose the port your backend runs on
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]

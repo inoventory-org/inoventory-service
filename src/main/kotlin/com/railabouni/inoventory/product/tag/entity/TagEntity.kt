@@ -1,7 +1,7 @@
 package com.railabouni.inoventory.product.tag.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.inovex.inoventory.product.entity.ProductEntity
+import com.railabouni.inoventory.product.entity.ProductEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
