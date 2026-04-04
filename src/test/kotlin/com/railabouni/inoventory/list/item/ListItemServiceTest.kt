@@ -6,7 +6,7 @@ import com.railabouni.inoventory.list.entity.InventoryListEntity
 import com.railabouni.inoventory.list.item.dto.ListItem
 import com.railabouni.inoventory.list.item.entity.ListItemEntity
 import com.railabouni.inoventory.config.DbAuthContext
-import com.railabouni.inoventory.ean.api.EanApiConnector
+import com.railabouni.inoventory.openfoodfacts.api.EanApiConnector
 import com.railabouni.inoventory.product.ProductCacheProperties
 import com.railabouni.inoventory.product.ProductMemoryCache
 import com.railabouni.inoventory.product.ProductService

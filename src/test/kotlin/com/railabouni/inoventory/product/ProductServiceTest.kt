@@ -1,6 +1,5 @@
 package com.railabouni.inoventory.product
 
-import com.railabouni.inoventory.ean.api.EanApiConnector
 import com.railabouni.inoventory.product.dto.EAN
 import com.railabouni.inoventory.product.dto.Product
 import io.mockk.*

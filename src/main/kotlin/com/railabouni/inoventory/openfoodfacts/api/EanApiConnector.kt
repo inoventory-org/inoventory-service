@@ -1,4 +1,4 @@
-package com.railabouni.inoventory.ean.api
+package com.railabouni.inoventory.openfoodfacts.api
 
 import com.railabouni.inoventory.product.dto.EAN
 import com.railabouni.inoventory.product.dto.Product
