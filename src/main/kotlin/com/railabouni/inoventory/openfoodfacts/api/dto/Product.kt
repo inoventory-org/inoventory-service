@@ -1,4 +1,4 @@
-package com.railabouni.inoventory.ean.api.openfoodfacts.dto
+package com.railabouni.inoventory.openfoodfacts.api.dto
 
 import com.railabouni.inoventory.product.dto.EAN
 import com.railabouni.inoventory.product.tag.dto.Tag
@@ -585,4 +585,16 @@ data class Product(
         thumbUrl = imageThumbUrl,
         tags = categoriesHierarchy.map { Tag(it) }
     )
+
+    companion object {
+        fun fromProductDto(productDto: ProductDto) = Product(
+            productName = productDto.name,
+            code = productDto.ean.value,
+            brands = productDto.brands,
+            quantity = productDto.weight,
+            imageUrl = productDto.imageUrl,
+            imageThumbUrl = productDto.thumbUrl,
+            categoriesHierarchy = productDto.tags.map { it.name }
+        )
+    }
 }

@@ -1,4 +1,4 @@
-package com.railabouni.inoventory.ean.api.openfoodfacts.dto
+package com.railabouni.inoventory.openfoodfacts.api.dto
 
 import kotlinx.serialization.Serializable
 

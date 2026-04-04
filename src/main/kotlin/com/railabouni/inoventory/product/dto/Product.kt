@@ -9,6 +9,7 @@ data class Product(
     val ean: EAN,
     val name: String,
     val brands: String? = null,
+    val weight: String? = null,
     val imageUrl: String? = null,
     val thumbUrl: String? = null,
     var tags: List<Tag> = listOf()
