@@ -29,10 +29,12 @@ class OpenFoodFactsApiConnector(
     val httpClient: HttpClient,
     @Value("\${openfoodfacts.user-id:inoventory}") private val offUserId: String,
     @Value("\${openfoodfacts.password:}") private val offPassword: String,
+    @Value("\${openfoodfacts.url-template:https://{region}.openfoodfacts.net}") private val urlTemplate: String
 ) : EanApiConnector, ProductsConnector {
 
     override suspend fun findByEan(ean: EAN): Product? {
-        val url = "https://world.openfoodfacts.net/api/v3/product/${ean.value}.json&fields=$fields"
+        val baseUrl = urlTemplate.replace("{region}", "world")
+        val url = "$baseUrl/api/v3/product/${ean.value}.json?fields=$fields"
         val result = httpClient.get(url)
         if (result.status != HttpStatusCode.OK)
             return null
@@ -51,8 +53,9 @@ class OpenFoodFactsApiConnector(
             it.field == ProductEntity::name.name && it.operator == SearchOperator.Like
         }?.value ?: return listOf()
 
-        val url = "https://world.openfoodfacts.net/cgi/search.pl?search_terms=$searchTerm&json=1&fields=$fields&page_size=$pageSize&page=1"
-        val result = httpClient.get(url)
+       val baseUrl = urlTemplate.replace("{region}", "world")
+        val url = "$baseUrl/cgi/search.pl?search_terms=$searchTerm&json=1&fields=$fields&page_size=$pageSize&page=1"
+       val result = httpClient.get(url)
         if (result.status != HttpStatusCode.OK)
             return listOf()
 
@@ -78,7 +81,7 @@ class OpenFoodFactsApiConnector(
         userId: String,
         region: String
     ) {
-        val baseUrl = "https://$region.openfoodfacts.net"
+        val baseUrl = urlTemplate.replace("{region}", region)
 
         // Step 1: Submit product text data via form-encoded POST
         val comment = "Edit by inoventory/0.0.1 - $userId"
