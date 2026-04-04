@@ -2,6 +2,7 @@ package com.railabouni.inoventory.openfoodfacts.api
 
 import com.railabouni.inoventory.openfoodfacts.ProductsConnector
 import com.railabouni.inoventory.openfoodfacts.api.dto.ProductResponse
+import com.railabouni.inoventory.openfoodfacts.api.dto.ResultResponse
 import com.railabouni.inoventory.openfoodfacts.api.dto.SearchResponse
 import com.railabouni.inoventory.product.dto.EAN
 import com.railabouni.inoventory.product.dto.Product
@@ -10,15 +11,19 @@ import com.railabouni.inoventory.product.search.SearchCriteria
 import com.railabouni.inoventory.product.search.SearchOperator
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.forms.FormPart
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -79,9 +84,12 @@ class OpenFoodFactsApiConnector(
         product: Product,
         images: Map<String, ByteArray>,
         userId: String,
+        language: String,
         region: String
     ) {
         val baseUrl = urlTemplate.replace("{region}", region)
+        val normalizedLanguage = language.lowercase()
+        val countryCode = region.takeUnless { it.equals("world", ignoreCase = true) }?.lowercase()
 
         // Step 1: Submit product text data via form-encoded POST
         val comment = "Edit by inoventory/0.0.1 - $userId"
@@ -92,19 +100,17 @@ class OpenFoodFactsApiConnector(
                 append("user_id", offUserId)
                 append("password", offPassword)
                 append("comment", comment)
+                append("lc", normalizedLanguage)
+                countryCode?.let { append("cc", it) }
                 product.name.takeIf { it.isNotBlank() }?.let { append("product_name", it) }
                 product.brands?.takeIf { it.isNotBlank() }?.let { append("add_brands", it) }
                 product.weight?.takeIf { it.isNotBlank() }?.let { append("quantity", it) }
             }
-        ).also { response ->
-            if (response.status != HttpStatusCode.OK) {
-                throw Exception("Failed to submit product to OFF: ${response.status}")
-            }
-        }
+        ).also { response -> validateOffWriteResponse(response, "submit product") }
 
         // Step 2: Upload each image separately
         for ((imageType, imageBytes) in images) {
-            uploadImage(baseUrl, product.ean.value, imageType, imageBytes)
+            uploadImage(baseUrl, product.ean.value, imageType, normalizedLanguage, imageBytes)
         }
     }
 
@@ -112,33 +118,56 @@ class OpenFoodFactsApiConnector(
         baseUrl: String,
         barcode: String,
         imageType: String,
+        language: String,
         imageBytes: ByteArray
     ) {
+        val imageField = "${imageType}_$language"
         httpClient.submitFormWithBinaryData(
             url = "$baseUrl/cgi/product_image_upload.pl",
             formData = formData {
                 append("code", barcode)
                 append("user_id", offUserId)
                 append("password", offPassword)
-                append("imagefield", imageType)
+                append("imagefield", imageField)
                 append(
-                    key = "imgupload_$imageType",
+                    key = "imgupload_$imageField",
                     value = imageBytes,
                     headers = Headers.build {
                         append(HttpHeaders.ContentType, "image/jpeg")
-                        append(HttpHeaders.ContentDisposition, "filename=\"${imageType}.jpg\"")
+                        append(HttpHeaders.ContentDisposition, "filename=\"${imageField}.jpg\"")
                     }
                 )
             }
-        ).also { response ->
-            if (response.status != HttpStatusCode.OK) {
-                throw Exception("Failed to upload $imageType image to OFF: ${response.status}")
-            }
+        ).also { response -> validateOffWriteResponse(response, "upload $imageField image") }
+    }
+
+    private suspend fun validateOffWriteResponse(response: HttpResponse, action: String) {
+        val body = response.bodyAsText()
+
+        if (response.status != HttpStatusCode.OK) {
+            throw Exception("Failed to $action to OFF: ${response.status} $body")
+        }
+
+        val payload = runCatching { json.decodeFromString<ResultResponse>(body) }.getOrNull()
+        val rawStatus = runCatching {
+            json.parseToJsonElement(body).jsonObject["status"]?.jsonPrimitive?.content
+        }.getOrNull()
+        val status = payload?.status?.lowercase() ?: rawStatus?.lowercase()
+        if (status != null && status != "status ok" && status != "1") {
+            val failureMessage = payload?.statusVerbose ?: payload?.debug ?: payload?.status ?: body
+            throw Exception(
+                "OFF rejected $action: $failureMessage"
+            )
         }
     }
 
     companion object {
         private const val fields = "code,product_name,image_url,image_thumb_url,brands,categories_hierarchy"
         private const val pageSize = 10
+        private val json = Json {
+            prettyPrint = true
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+        }
     }
 }

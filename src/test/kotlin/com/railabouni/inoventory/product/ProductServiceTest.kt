@@ -111,6 +111,7 @@ class ProductServiceTest {
             frontImage = frontImage,
             ingredientsImage = null,
             nutritionImage = nutritionImage,
+            language = "de",
             region = "de"
         )
 
@@ -123,6 +124,7 @@ class ProductServiceTest {
                         "ingredients" !in it
                 },
                 userId = userId.toString(),
+                language = "de",
                 region = "de"
             )
         }

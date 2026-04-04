@@ -44,6 +44,7 @@ class ProductController(private val service: ProductService) {
         @RequestParam(required = false) productName: String?,
         @RequestParam(required = false) brands: String?,
         @RequestParam(required = false) weight: String?,
+        @RequestParam(required = false, defaultValue = "en") language: String,
         @RequestParam(required = false, defaultValue = "world") region: String,
         @RequestPart(required = false) frontImage: MultipartFile?,
         @RequestPart(required = false) ingredientsImage: MultipartFile?,
@@ -60,6 +61,7 @@ class ProductController(private val service: ProductService) {
             frontImage = frontImage,
             ingredientsImage = ingredientsImage,
             nutritionImage = nutritionImage,
+            language = language,
             region = region
         )
     }

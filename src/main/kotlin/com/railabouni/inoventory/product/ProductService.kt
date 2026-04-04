@@ -60,6 +60,7 @@ class ProductService(
         frontImage: MultipartFile?,
         ingredientsImage: MultipartFile?,
         nutritionImage: MultipartFile?,
+        language: String = "en",
         region: String = "world"
     ) {
         val currentUser = currentUserService.getCurrentUser()
@@ -75,6 +76,7 @@ class ProductService(
                 product = product,
                 images = images,
                 userId = currentUser.id.toString(),
+                language = language,
                 region = region
             )
         }

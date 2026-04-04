@@ -14,6 +14,7 @@ interface ProductsConnector {
         product: Product,
         images: Map<String, ByteArray>,
         userId: String,
+        language: String,
         region: String = "world"
     )
 }

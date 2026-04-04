@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import com.railabouni.inoventory.openfoodfacts.api.dto.Product as OpenFoodFactsProduct
 
 private const val DEFAULT_USER_AGENT = "inoventory/0.0.1 (eilabouni.rudy@gmail.com)"
@@ -93,6 +94,7 @@ class OpenFoodFactsApiConnectorTest {
                 product = product,
                 images = emptyMap(),
                 userId = "user-abc-123",
+                language = "en",
                 region = "world"
             )
         }
@@ -110,6 +112,7 @@ class OpenFoodFactsApiConnectorTest {
             assertTrue(bodyText.contains("user_id=$OFF_USER_ID"), "Expected user_id in body, got: $bodyText")
             assertTrue(bodyText.contains("comment="), "Expected comment in body, got: $bodyText")
             assertTrue(bodyText.contains("user-abc-123"), "Expected userId in comment, got: $bodyText")
+            assertTrue(bodyText.contains("lc=en"), "Expected lc in body, got: $bodyText")
         }
     }
 
@@ -122,6 +125,7 @@ class OpenFoodFactsApiConnectorTest {
                 product = product,
                 images = emptyMap(),
                 userId = "user-abc",
+                language = "de",
                 region = "de"
             )
         }
@@ -134,6 +138,82 @@ class OpenFoodFactsApiConnectorTest {
             productRequest!!.url.host.contains("de."),
             "Expected 'de.' region in URL, got: ${productRequest.url.host}"
         )
+        runBlocking {
+            val bodyText = productRequest.body.toByteArray().decodeToString()
+            assertTrue(bodyText.contains("cc=de"), "Expected cc in body, got: $bodyText")
+            assertTrue(bodyText.contains("lc=de"), "Expected lc in body, got: $bodyText")
+        }
+    }
+
+    @Test
+    fun `add() uploads images with language specific field names`() {
+        val product = Product(name = "", ean = EAN("12345678"))
+
+        runBlocking {
+            apiConnector.upsertToOpenFoodFacts(
+                product = product,
+                images = mapOf("ingredients" to "img".toByteArray()),
+                userId = "user-abc",
+                language = "fr",
+                region = "world"
+            )
+        }
+
+        val imageRequest = capturedRequests.lastOrNull { req ->
+            req.url.toString().contains("product_image_upload.pl")
+        }
+        assertNotNull(imageRequest)
+        runBlocking {
+            val bodyText = imageRequest!!.body.toByteArray().decodeToString()
+            assertTrue(bodyText.contains("ingredients_fr"), "Expected language-specific image marker in body, got: $bodyText")
+        }
+    }
+
+    @Test
+    fun `add() throws when OFF returns status not ok`() {
+        val failingHttpClient = HttpClient(
+            engine = MockEngine { request ->
+                respond(
+                    status = HttpStatusCode.OK,
+                    content = """{"status":"status not ok","status_verbose":"bad request","debug":"missing data"}""",
+                    headers = headersOf("content-type", "application/json")
+                )
+            }
+        ) {
+            expectSuccess = false
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        prettyPrint = true
+                        encodeDefaults = true
+                        ignoreUnknownKeys = true
+                    }
+                )
+            }
+            install(UserAgent) {
+                agent = DEFAULT_USER_AGENT
+            }
+        }
+        val failingConnector = OpenFoodFactsApiConnector(
+            failingHttpClient,
+            OFF_USER_ID,
+            OFF_PASSWORD,
+            "https://{region}.openfoodfacts.net"
+        )
+
+        val error = assertThrows<Exception> {
+            runBlocking {
+                failingConnector.upsertToOpenFoodFacts(
+                    product = Product(name = "", ean = EAN("12345678")),
+                    images = emptyMap(),
+                    userId = "user-abc",
+                    language = "en",
+                    region = "world"
+                )
+            }
+        }
+
+        assertTrue(error.message!!.contains("bad request"))
     }
 
     companion object {
