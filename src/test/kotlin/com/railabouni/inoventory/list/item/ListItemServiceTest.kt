@@ -6,6 +6,7 @@ import com.railabouni.inoventory.list.entity.InventoryListEntity
 import com.railabouni.inoventory.list.item.dto.ListItem
 import com.railabouni.inoventory.list.item.entity.ListItemEntity
 import com.railabouni.inoventory.config.DbAuthContext
+import com.railabouni.inoventory.openfoodfacts.ProductsConnector
 import com.railabouni.inoventory.openfoodfacts.api.EanApiConnector
 import com.railabouni.inoventory.product.ProductCacheProperties
 import com.railabouni.inoventory.product.ProductMemoryCache
@@ -13,6 +14,7 @@ import com.railabouni.inoventory.product.ProductService
 import com.railabouni.inoventory.product.dto.EAN
 import com.railabouni.inoventory.product.dto.Product
 import com.railabouni.inoventory.product.tag.dto.Tag
+import com.railabouni.inoventory.user.service.CurrentUserService
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -29,7 +31,14 @@ class ListItemServiceTest {
 
     private val repository = mockk<ListItemRepository>()
     private val apiConnector = mockk<EanApiConnector>()
-    private val productService = ProductService(apiConnector, ProductMemoryCache(ProductCacheProperties()))
+    private val productsConnector = mockk<ProductsConnector>(relaxed = true)
+    private val currentUserService = mockk<CurrentUserService>(relaxed = true)
+    private val productService = ProductService(
+        apiConnector,
+        productsConnector,
+        ProductMemoryCache(ProductCacheProperties()),
+        currentUserService
+    )
     private val listRepository = mockk<InventoryListRepository>()
     private val dbAuthContext = mockk<DbAuthContext>(relaxed = true)
     private val service = ListItemService(repository, productService, listRepository, dbAuthContext)
