@@ -16,6 +16,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import com.railabouni.inoventory.openfoodfacts.api.dto.Product as OpenFoodFactsProduct
 
@@ -25,7 +26,17 @@ private const val OFF_PASSWORD = "test-password"
 
 class OpenFoodFactsApiConnectorTest {
 
-    private val apiConnector = OpenFoodFactsApiConnector(httpClient, OFF_USER_ID, OFF_PASSWORD)
+    private val apiConnector = OpenFoodFactsApiConnector(
+        httpClient,
+        OFF_USER_ID,
+        OFF_PASSWORD,
+        "https://{region}.openfoodfacts.net"
+    )
+
+    @BeforeEach
+    fun clearCapturedRequests() {
+        capturedRequests.clear()
+    }
 
     @Test
     fun `findByEan() works when EAN is found`() {
@@ -87,18 +98,19 @@ class OpenFoodFactsApiConnectorTest {
         }
 
         // The last captured request body should contain the barcode and product name
-        val requests = capturedRequests
-        val productRequest = requests.find { req ->
+        val productRequest = capturedRequests.lastOrNull { req ->
             req.url.toString().contains("product_jqm2.pl")
         }
         assertNotNull(productRequest, "Expected a request to product_jqm2.pl")
-        val bodyText = productRequest!!.body.toByteArray().decodeToString()
-        assertTrue(bodyText.contains("code=$barcode"), "Expected code in body, got: $bodyText")
-        assertTrue(bodyText.contains("product_name=Test+Product") || bodyText.contains("product_name=Test%20Product"),
-            "Expected product_name in body, got: $bodyText")
-        assertTrue(bodyText.contains("user_id=$OFF_USER_ID"), "Expected user_id in body, got: $bodyText")
-        assertTrue(bodyText.contains("comment="), "Expected comment in body, got: $bodyText")
-        assertTrue(bodyText.contains("user-abc-123"), "Expected userId in comment, got: $bodyText")
+        runBlocking {
+            val bodyText = productRequest!!.body.toByteArray().decodeToString()
+            assertTrue(bodyText.contains("code=$barcode"), "Expected code in body, got: $bodyText")
+            assertTrue(bodyText.contains("product_name=Test+Product") || bodyText.contains("product_name=Test%20Product"),
+                "Expected product_name in body, got: $bodyText")
+            assertTrue(bodyText.contains("user_id=$OFF_USER_ID"), "Expected user_id in body, got: $bodyText")
+            assertTrue(bodyText.contains("comment="), "Expected comment in body, got: $bodyText")
+            assertTrue(bodyText.contains("user-abc-123"), "Expected userId in comment, got: $bodyText")
+        }
     }
 
     @Test
@@ -114,7 +126,7 @@ class OpenFoodFactsApiConnectorTest {
             )
         }
 
-        val productRequest = capturedRequests.find { req ->
+        val productRequest = capturedRequests.lastOrNull { req ->
             req.url.toString().contains("product_jqm2.pl")
         }
         assertNotNull(productRequest)
