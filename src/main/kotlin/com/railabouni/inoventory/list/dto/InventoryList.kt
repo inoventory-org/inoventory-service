@@ -8,13 +8,15 @@ data class InventoryList(
     val id: Long? = -1,
     val name: String,
     val userId: UUID? = null,
-    val type: InventoryListType = InventoryListType.REGULAR
+    val type: InventoryListType = InventoryListType.REGULAR,
+    val sortOrder: Int = 0
 ) {
     fun toEntity(userId: UUID): InventoryListEntity {
         return InventoryListEntity(
             id = id,
             name = name,
             userId = userId,
+            sortOrder = sortOrder,
             type = type
         )
     }
@@ -24,7 +26,8 @@ data class InventoryList(
             id = list.id,
             name = list.name,
             userId = list.userId,
-            type = list.type
+            type = list.type,
+            sortOrder = list.sortOrder
         )
     }
 }

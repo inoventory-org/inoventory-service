@@ -8,4 +8,5 @@ import java.util.UUID
 interface InventoryListRepository : JpaRepository<InventoryListEntity, Long> {
     fun findAllByIdIn(ids: List<Long>) : List<InventoryListEntity>
     fun findByUserIdAndType(userId: UUID, type: InventoryListType): InventoryListEntity?
+    fun findAllByUserIdOrderBySortOrderAscIdAsc(userId: UUID): List<InventoryListEntity>
 }

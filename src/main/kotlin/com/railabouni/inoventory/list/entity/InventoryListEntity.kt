@@ -18,6 +18,9 @@ data class InventoryListEntity (
     @Column(name = "user_id", nullable = false)
     val userId: UUID,
 
+    @Column(name = "sort_order", nullable = false)
+    val sortOrder: Int = 0,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     val type: InventoryListType = InventoryListType.REGULAR
