@@ -4,6 +4,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Column
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import java.util.UUID
 
 @Entity
@@ -14,5 +16,9 @@ data class InventoryListEntity (
     val name: String,
 
     @Column(name = "user_id", nullable = false)
-    val userId: UUID
+    val userId: UUID,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    val type: InventoryListType = InventoryListType.REGULAR
 )

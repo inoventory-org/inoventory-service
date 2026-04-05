@@ -9,6 +9,7 @@ data class ListItem(
     val id: Long? = null,
     val displayName: String? = null,
     val expirationDate: LocalDate?,
+    val openedAt: LocalDate? = null,
     val productEan: String,
     val imageUrl: String? = null,
     val thumbUrl: String? = null,
@@ -18,6 +19,7 @@ data class ListItem(
     fun toEntity(product: Product, list: InventoryListEntity) = ListItemEntity(
         id = id,
         expirationDate = expirationDate,
+        openedAt = openedAt,
         productEan = product.ean.value,
         productName = product.name,
         productBrands = product.brands,
@@ -30,6 +32,7 @@ data class ListItem(
         fun fromEntity(listItem: ListItemEntity) = ListItem(
             id = listItem.id,
             expirationDate = listItem.expirationDate,
+            openedAt = listItem.openedAt,
             displayName = listItem.productBrands?.let { "$it ${listItem.productName}" } ?: listItem.productName,
             productEan = listItem.productEan,
             imageUrl = listItem.productImageUrl,
