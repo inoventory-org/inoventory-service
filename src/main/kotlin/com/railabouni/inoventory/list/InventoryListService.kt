@@ -3,7 +3,9 @@ package com.railabouni.inoventory.list
 import com.railabouni.inoventory.exceptions.NotAuthorizedException
 import com.railabouni.inoventory.exceptions.ResourceNotFoundException
 import com.railabouni.inoventory.list.dto.InventoryList
+import com.railabouni.inoventory.list.dto.ReorderInventoryListsRequest
 import com.railabouni.inoventory.list.entity.InventoryListEntity
+import com.railabouni.inoventory.list.entity.InventoryListType
 import com.railabouni.inoventory.list.permission.PermissionService
 import com.railabouni.inoventory.list.permission.entity.AccessRight
 import com.railabouni.inoventory.user.dto.UserDto
@@ -25,7 +27,9 @@ class InventoryListService(
         dbAuthContext.apply()
         val userId = currentUserService.getCurrentUser().id
         val allowedLists = permissionService.getByUserIdAndAccessRight(userId, AccessRight.READ)
-        return inventoryListRepository.findAllByIdIn(allowedLists.map { it.listId })
+        return inventoryListRepository
+            .findAllByIdIn(allowedLists.map { it.listId })
+            .sortedWith(compareBy<InventoryListEntity> { it.sortOrder }.thenBy { it.id })
     }
 
     @Transactional
@@ -45,7 +49,11 @@ class InventoryListService(
     fun create(inventoryList: InventoryList): InventoryList {
         dbAuthContext.apply()
         val user = currentUserService.getCurrentUser()
-        val listWithUser = inventoryList.toEntity(user.id)
+        if (inventoryList.type == InventoryListType.OPEN) {
+            throw IllegalStateException("Open lists are managed internally.")
+        }
+        val nextSortOrder = getAll().maxOfOrNull { it.sortOrder }?.plus(1) ?: 0
+        val listWithUser = inventoryList.copy(sortOrder = nextSortOrder).toEntity(user.id)
 
         val createdList = InventoryList.fromEntity(inventoryListRepository.save(listWithUser))
         createDefaultAccessRights(user, createdList)
@@ -61,8 +69,33 @@ class InventoryListService(
             throw NotAuthorizedException("User $userId is not allowed to edit list $id")
 
         val existingList = getById(id)
+        if (existingList.type == InventoryListType.OPEN) {
+            throw IllegalStateException("Open lists cannot currently be renamed.")
+        }
         val updatedList = existingList.copy(name = inventoryList.name).toEntity(userId)
         return InventoryList.fromEntity(inventoryListRepository.save(updatedList))
+    }
+
+    @Transactional
+    fun reorder(request: ReorderInventoryListsRequest): List<InventoryList> {
+        dbAuthContext.apply()
+        val userId = currentUserService.getCurrentUser().id
+        val currentLists = getAll()
+        val currentIds = currentLists.mapNotNull { it.id }
+        if (request.listIds.toSet() != currentIds.toSet() || request.listIds.size != currentIds.size) {
+            throw IllegalArgumentException("Reorder request must contain exactly the accessible list ids.")
+        }
+
+        val reordered = request.listIds.mapIndexed { index, listId ->
+            if (!permissionService.userCanEditList(userId, listId)) {
+                throw NotAuthorizedException("User $userId is not allowed to reorder list $listId")
+            }
+            val list = currentLists.first { it.id == listId }
+            inventoryListRepository.save(list.copy(sortOrder = index))
+        }
+        return reordered
+            .sortedWith(compareBy<InventoryListEntity> { it.sortOrder }.thenBy { it.id })
+            .map { InventoryList.fromEntity(it) }
     }
 
     @Transactional
@@ -72,7 +105,39 @@ class InventoryListService(
         if (!permissionService.userCanDeleteList(userId, id))
             throw NotAuthorizedException("User $userId is not allowed to delete list $id")
 
+        val existingList = getById(id)
+        if (existingList.type == InventoryListType.OPEN) {
+            throw IllegalStateException("Open lists cannot currently be deleted.")
+        }
+
         inventoryListRepository.deleteById(id)
+    }
+
+    @Transactional
+    fun getOrCreateOpenList(): InventoryListEntity {
+        dbAuthContext.apply()
+        val user = currentUserService.getCurrentUser()
+        val existingOpenList = inventoryListRepository.findByUserIdAndType(user.id, InventoryListType.OPEN)
+        if (existingOpenList != null) {
+            return existingOpenList
+        }
+
+        val createdList = inventoryListRepository.save(
+            InventoryListEntity(
+                name = "Open",
+                userId = user.id,
+                sortOrder = inventoryListRepository.findAllByUserIdOrderBySortOrderAscIdAsc(user.id)
+                    .maxOfOrNull { it.sortOrder }?.plus(1) ?: 0,
+                type = InventoryListType.OPEN
+            )
+        )
+        requireNotNull(createdList.id)
+        permissionService.createPermissions(
+            user.id,
+            createdList.id,
+            listOf(AccessRight.READ, AccessRight.WRITE, AccessRight.DELETE)
+        )
+        return createdList
     }
 
     private fun createDefaultAccessRights(user: UserDto, createdList: InventoryList) {

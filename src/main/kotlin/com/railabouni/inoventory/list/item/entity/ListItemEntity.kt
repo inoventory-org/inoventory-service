@@ -12,12 +12,14 @@ import jakarta.persistence.Index
 import java.time.LocalDate
 
 @Entity
-@Table(indexes = [Index(name = "idx_expiration_date", columnList = "expirationDate")])
+@Table(indexes = [Index(name = "idx_expiration_date", columnList = "expirationDate"), Index(name = "idx_opened_at", columnList = "opened_at")])
 data class ListItemEntity (
     @Id
     @GeneratedValue
     val id: Long? = null,
     val expirationDate: LocalDate?,
+    @Column(name = "opened_at")
+    val openedAt: LocalDate? = null,
     val productEan: String,
     val productName: String,
     val productBrands: String? = null,

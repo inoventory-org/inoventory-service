@@ -2,6 +2,7 @@ package com.railabouni.inoventory.list.item
 
 import com.railabouni.inoventory.list.item.dto.ItemWrapper
 import com.railabouni.inoventory.list.item.dto.ListItem
+import com.railabouni.inoventory.list.item.dto.OpenListItemRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -27,6 +28,10 @@ class ListItemController(private val listItemService: ListItemService) {
     @PutMapping("/{id}")
     fun update(@PathVariable listId: Long, @PathVariable id: Long, @RequestBody inventoryList: ListItem): ListItem =
         listItemService.update(id, listId, inventoryList)
+
+    @PostMapping("/{id}/open")
+    fun open(@PathVariable listId: Long, @PathVariable id: Long, @RequestBody request: OpenListItemRequest): ListItem =
+        listItemService.open(id, listId, request)
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable listId: Long, @PathVariable id: Long): ListItem? = listItemService.delete(id)

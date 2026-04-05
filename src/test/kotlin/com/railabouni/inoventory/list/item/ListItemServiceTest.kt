@@ -2,8 +2,11 @@ package com.railabouni.inoventory.list.item
 
 import com.railabouni.inoventory.exceptions.ResourceNotFoundException
 import com.railabouni.inoventory.list.InventoryListRepository
+import com.railabouni.inoventory.list.InventoryListService
 import com.railabouni.inoventory.list.entity.InventoryListEntity
+import com.railabouni.inoventory.list.entity.InventoryListType
 import com.railabouni.inoventory.list.item.dto.ListItem
+import com.railabouni.inoventory.list.item.dto.OpenListItemRequest
 import com.railabouni.inoventory.list.item.entity.ListItemEntity
 import com.railabouni.inoventory.config.DbAuthContext
 import com.railabouni.inoventory.openfoodfacts.ProductsConnector
@@ -40,8 +43,9 @@ class ListItemServiceTest {
         currentUserService
     )
     private val listRepository = mockk<InventoryListRepository>()
+    private val inventoryListService = mockk<InventoryListService>()
     private val dbAuthContext = mockk<DbAuthContext>(relaxed = true)
-    private val service = ListItemService(repository, productService, listRepository, dbAuthContext)
+    private val service = ListItemService(repository, productService, listRepository, inventoryListService, dbAuthContext)
 
     @Test
     fun `getAll should return a list of ListItemDTOs`() {
@@ -231,6 +235,20 @@ class ListItemServiceTest {
     }
 
     @Test
+    fun `create should set openedAt when adding directly to the open list`() {
+        val product = Product(ean = EAN("1234567890123"), name = "product")
+        val list = InventoryListEntity(id = 0L, name = "Open", userId = UUID.randomUUID(), type = InventoryListType.OPEN)
+        val listItem = ListItem(productEan = "1234567890123", expirationDate = LocalDate.of(2022, 1, 1), listId = 0)
+        coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns product
+        every { listRepository.findByIdOrNull(listItem.listId) } returns list
+        every { repository.save(any()) } answers { firstArg() }
+
+        val result = service.create(0L, listItem)
+
+        assertEquals(LocalDate.now(), result.openedAt)
+    }
+
+    @Test
     fun `create should throw a ResourceNotFoundException if the product is not found`() {
         val listItem = ListItem(expirationDate = LocalDate.of(2022, 1, 1), productEan = "1234567890123", listId = 0L)
         coEvery { apiConnector.findByEan(EAN(listItem.productEan)) } returns null
@@ -307,5 +325,27 @@ class ListItemServiceTest {
 
         verify { repository.deleteById(id) }
         assertEquals(null, actualItem)
+    }
+
+    @Test
+    fun `open should move an existing item into the open list and set openedAt`() {
+        val sourceList = InventoryListEntity(id = 1L, name = "Pantry", userId = UUID.randomUUID())
+        val openList = InventoryListEntity(id = 2L, name = "Open", userId = sourceList.userId, type = InventoryListType.OPEN)
+        val existingItem = ListItemEntity(
+            id = 11L,
+            expirationDate = null,
+            productEan = "1234567890123",
+            productName = "product",
+            list = sourceList
+        )
+        every { repository.findByIdOrNull(11L) } returns existingItem
+        every { inventoryListService.getOrCreateOpenList() } returns openList
+        every { repository.save(any()) } answers { firstArg() }
+
+        val result = service.open(11L, 1L, OpenListItemRequest(expirationDate = LocalDate.of(2025, 1, 1)))
+
+        assertEquals(openList.id, result.listId)
+        assertEquals(LocalDate.of(2025, 1, 1), result.expirationDate)
+        assertEquals(LocalDate.now(), result.openedAt)
     }
 }
