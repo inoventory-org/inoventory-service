@@ -144,6 +144,7 @@ class InventoryListServiceTests {
         every { localInventoryListRepository.findByIdOrNull(id) } returns list.toEntity(userId)
         every { currentUserService.getCurrentUser() } returns user
         every { permissionService.userCanDeleteList(userId, id) } returns true
+        every { permissionService.userCanAccessList(userId, id) } returns true
         // When
         localInventoryListService.delete(id)
 
