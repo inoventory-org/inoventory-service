@@ -1,42 +1,53 @@
-# Inoventory-Service
+# Inoventory - Backend Service
 
----
+The backend API for Inoventory, built with **Kotlin** and **Spring Boot**.
 
-Api for **Inoventory** (not a prepper app!) using Spring Boot 3 + Kotlin.
+## ✨ Features
+- **RESTful API**: Manage inventory items, tags, and product information.
+- **Supabase Auth**: JWT-based authentication and authorization.
+- **Push Notifications**: Automated expiration tracking and Firebase push delivery.
+- **Search & Filtering**: Advanced search using JPA Specifications.
+- **OpenAPI/Swagger**: Built-in documentation for API evaluation.
+- **CORS Support**: Configured for Flutter Web and local development.
 
-## Java Version
-This project requires Java 22. Use jenv or sdkman to configure your local environment.
+## 🚀 Tech Stack
+- **Languages**: Kotlin 2.0 / Java 22
+- **Framework**: Spring Boot 3.3.3
+- **Persistence**: Hibernate / Spring Data JPA
+- **Database**: PostgreSQL (Supabase)
+- **Deployment**: [Render.io](https://inoventory.onrender.com)
+- **CI/CD**: GitHub Actions
 
-## Running locally
-1. Create `.env` (or `.env.local`) in the service root:
-   ```properties
-   DB_URL=jdbc:postgresql://db.tncuiwvsvyixivsfhpqv.supabase.co:5432/postgres?sslmode=require
-   DB_USERNAME=postgres
-   DB_PASSWORD=your_password
-   SUPABASE_PROJECT_BASE_URL=https://tncuiwvsvyixivsfhpqv.supabase.co
-   SUPABASE_JWT_AUDIENCE=authenticated
-   ```
-2. Run with Gradle  
-`./gradlew bootRun --args='--spring.profiles.active=local'`
+## 🛠 Local Setup
 
-### Swagger
-Swagger is running under `http://localhost:8080/swagger-ui/index.html`
+### 1. Requirements
+- **Java 22**: Ensure you have it installed (use `sdkman` or `jenv`).
+- **Supabase Project**: Active project for Auth and Database.
 
-### Postgres
-Access PGAdmin via `http://localhost:5050/browser/`. 
+### 2. Environment Configuration
+Create a `.env` (or `.env.local`) in the service root:
+```properties
+DB_URL=jdbc:postgresql://your-supabase-db:5432/postgres?sslmode=require
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+SUPABASE_PROJECT_BASE_URL=https://your-project.supabase.co
+SUPABASE_JWT_AUDIENCE=authenticated
+```
 
-Connect to the inoventory database with the following configuration:
-- Hostname: postgres_app
-- Username: postgres
-- Password: postgres
+### 3. Running with Gradle
+```bash
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
 
+### 4. Swagger UI
+Interactive documentation is available at:  
+`http://localhost:8080/swagger-ui/index.html`
 
-## Auth
-Supabase is used for Authentication and Authorization. Every call must contain a valid Bearer token issued by Supabase.
-The service does not persist its own users table; use the Supabase `auth.users` identity and store `user_id` (UUID) on domain rows.
+## 🐳 Docker
+A `docker-compose.yml` is provided for running dependencies (Postgres/PGAdmin) or the application itself.
+- **PGAdmin**: `http://localhost:5050/browser/` (Login: `postgres@example.com` / `postgres`)
 
-If DB connections suddenly fail with connection refused or metadata errors, check whether Supabase has temporarily banned your IP for suspicious activity.
-https://supabase.com/dashboard/project/tncuiwvsvyixivsfhpqv/database/settings
-
-## Links
-Service is running at: http://10.100.255.76:8080/  (http://inoventory.railabouni.fra.ics.inovex.io/)
+## 🚢 Deployment
+The backend is currently deployed at:  
+`https://inoventory.onrender.com`
+(Backup URL: `http://inoventory.railabouni.fra.ics.inovex.io/`)
